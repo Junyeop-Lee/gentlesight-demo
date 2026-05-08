@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="Realistic isometric home interior with appliances">
+  <defs>
+    <linearGradient id="wall" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ebe5d7"/>
+      <stop offset="0.52" stop-color="#d5e4dd"/>
+      <stop offset="1" stop-color="#c5dce7"/>
+    </linearGradient>
+    <linearGradient id="kitchenFloor" x1="0" x2="1">
+      <stop offset="0" stop-color="#eebf7f"/>
+      <stop offset="1" stop-color="#ffe4aa"/>
+    </linearGradient>
+    <linearGradient id="livingFloor" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#a9d7d2"/>
+      <stop offset="1" stop-color="#9bc9d9"/>
+    </linearGradient>
+    <linearGradient id="utilityFloor" x1="0" x2="1">
+      <stop offset="0" stop-color="#c4b8ea"/>
+      <stop offset="1" stop-color="#aaa0de"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#cfd8dc"/>
+      <stop offset="1" stop-color="#7f929c"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="18" dy="24" stdDeviation="14" flood-color="#203029" flood-opacity="0.22"/>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="8" dy="14" stdDeviation="8" flood-color="#203029" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="760" fill="url(#wall)"/>
+  <path d="M84 150 546 98 514 610 70 675Z" fill="url(#kitchenFloor)" stroke="#fff7e8" stroke-width="4" filter="url(#shadow)"/>
+  <path d="M560 82 1118 25 1090 376 530 424Z" fill="url(#livingFloor)" stroke="#eef9f6" stroke-width="4" filter="url(#shadow)"/>
+  <path d="M604 458 1010 414 988 656 578 704Z" fill="url(#utilityFloor)" stroke="#f0ecff" stroke-width="4" filter="url(#shadow)"/>
+
+  <g opacity="0.45" stroke="#ffffff" stroke-width="3">
+    <path d="M130 192 510 146"/>
+    <path d="M111 274 490 228"/>
+    <path d="M96 356 474 310"/>
+    <path d="M77 438 456 392"/>
+    <path d="M657 132 1047 92"/>
+    <path d="M642 204 1032 164"/>
+    <path d="M626 276 1016 236"/>
+    <path d="M624 508 952 470"/>
+    <path d="M612 582 940 544"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M143 194 319 174 316 225 138 247Z" fill="#e7c59f"/>
+    <path d="M138 247 316 225 315 363 134 388Z" fill="#f7efe3"/>
+    <path d="M315 225 498 203 492 343 315 363Z" fill="#eee4d4"/>
+    <rect x="220" y="252" width="92" height="84" rx="12" transform="rotate(-7 220 252)" fill="url(#metal)"/>
+    <rect x="350" y="231" width="96" height="66" rx="12" transform="rotate(-7 350 231)" fill="#e86f57"/>
+    <rect x="380" y="249" width="44" height="25" rx="5" transform="rotate(-7 380 249)" fill="#fff4ef"/>
+    <circle cx="432" cy="255" r="6" fill="#fff4ef"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="142" y="428" width="112" height="210" rx="18" transform="rotate(-8 142 428)" fill="url(#metal)"/>
+    <line x1="165" y1="522" x2="270" y2="507" stroke="#eef4f5" stroke-width="5"/>
+    <rect x="180" y="454" width="30" height="78" rx="8" transform="rotate(-8 180 454)" fill="#718494"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M668 128 1050 90 1035 180 650 218Z" fill="#b8d5d2"/>
+    <path d="M646 238 1040 200 1022 338 628 374Z" fill="#cde4e3"/>
+    <path d="M700 282 930 260 918 335 688 358Z" fill="#e9f4f2"/>
+    <path d="M950 241 1014 235 1006 332 942 338Z" fill="#8fb4b5"/>
+    <rect x="671" y="150" width="92" height="64" rx="14" transform="rotate(-6 671 150)" fill="#19332f"/>
+    <rect x="684" y="162" width="66" height="38" rx="6" transform="rotate(-6 684 162)" fill="#315f76"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M742 455 948 432 938 512 730 537Z" fill="#a694df"/>
+    <path d="M756 494 934 474 927 576 748 597Z" fill="#eeeaff"/>
+    <circle cx="890" cy="538" r="46" fill="#8c6edb"/>
+    <circle cx="890" cy="538" r="26" fill="#f5f2ff"/>
+    <circle cx="890" cy="538" r="18" fill="#8c6edb"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <ellipse cx="571" cy="151" rx="52" ry="38" fill="#f4c665"/>
+    <ellipse cx="571" cy="145" rx="36" ry="24" fill="#fff5d8"/>
+    <circle cx="571" cy="145" r="13" fill="#f0b74a"/>
+    <path d="M570 119v-34" stroke="#f6ead4" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M252 304c44-25 102-22 135 6s25 74-18 99-104 22-137-6-24-74 20-99Z" fill="#c7d5c9"/>
+    <ellipse cx="310" cy="356" rx="66" ry="48" fill="#38a991"/>
+    <ellipse cx="310" cy="356" rx="42" ry="28" fill="#dff6ef"/>
+    <path d="M287 355h46M296 369h28M300 346c8-9 22-10 30 0" stroke="#38a991" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <g opacity="0.62">
+    <path d="M585 437 1120 389" stroke="#f7ffff" stroke-width="3"/>
+    <path d="M573 703 990 654" stroke="#f7ffff" stroke-width="3"/>
+    <path d="M70 675 578 704" stroke="#ffffff" stroke-width="2"/>
+  </g>
+</svg>

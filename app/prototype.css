@@ -1,0 +1,256 @@
+/* prototype.css */
+
+/* 1. Full Screen Layout overrides */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.appShell {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+/* 2. Split Layout Logic */
+.splitLayout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.leftPane {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  container-type: size;
+}
+
+.rightPane {
+  width: 420px;
+  height: 100%;
+  background: var(--surface-strong);
+  border-left: 1px solid rgba(0,0,0,0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+  z-index: 100;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .rightPane {
+    width: 320px;
+  }
+}
+
+/* 3. HomeSimulator Background */
+.homePanel {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.homeSceneWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 2600 / 1698;
+}
+
+@container (min-aspect-ratio: 2600/1698) {
+  .homeSceneWrapper {
+    width: 100cqw;
+    height: auto;
+  }
+}
+
+@container (max-aspect-ratio: 2600/1698) {
+  .homeSceneWrapper {
+    width: auto;
+    height: 100cqh;
+  }
+}
+
+.homeSceneImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;
+}
+
+.homeSceneShade {
+  display: none;
+}
+
+/* 4. Translucent Floating Appliance Buttons */
+.applianceNode {
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  background: transparent;
+}
+
+.applianceIcon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+}
+
+.applianceHalo {
+  display: none !important;
+}
+
+.applianceLabel {
+  position: absolute;
+  bottom: -24px;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+/* Floating Elements over Home Simulator */
+.homeChrome {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+.homeChrome h1 { color: var(--ink); }
+
+.timelineOverlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+  width: 400px;
+  max-width: 90vw;
+  background: transparent !important;
+}
+
+.pipelineOverlay {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.wavePeekButton {
+  position: absolute;
+  top: auto;
+  bottom: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+}
+
+.floatingDetailPanel {
+  left: 50% !important;
+  right: auto !important;
+  bottom: 156px !important;
+  width: min(640px, calc(100% - 32px)) !important;
+  max-height: min(54vh, 520px);
+  transform: translateX(-50%);
+  z-index: 70;
+}
+
+.phoneOverlay {
+  display: none !important;
+}
+
+/* 5. Phone Toggle Button */
+.phoneToggleButton {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 24px rgba(47, 157, 132, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.phoneToggleButton:hover {
+  transform: scale(1.05);
+}
+
+.phoneToggleButton:active {
+  transform: scale(0.95);
+}
+
+/* 6. Landscape Prompt for Mobile */
+.landscapePrompt {
+  display: none;
+}
+
+@media (max-width: 800px) and (orientation: portrait) {
+  .appShell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+  }
+
+  .splitLayout {
+    display: none !important;
+  }
+
+  .landscapePrompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100dvh;
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+    padding: 24px;
+  }
+}

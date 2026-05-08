@@ -1,0 +1,1684 @@
+:root {
+  --background: #f6f7f2;
+  --surface: #ffffff;
+  --surface-strong: #f0f4ee;
+  --ink: #17211d;
+  --muted: #65726c;
+  --line: #dce3dc;
+  --teal: #2f9d84;
+  --blue: #3d76d1;
+  --coral: #df6f57;
+  --amber: #f0b74a;
+  --violet: #8c6edb;
+  --shadow: 0 24px 70px rgba(25, 37, 31, 0.13);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--background);
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(47, 157, 132, 0.1), transparent 32%),
+    linear-gradient(315deg, rgba(223, 111, 87, 0.09), transparent 34%),
+    var(--background);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  -webkit-tap-highlight-color: rgba(47, 157, 132, 0.18);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(61, 118, 209, 0.56);
+  outline-offset: 3px;
+}
+
+.skipLink {
+  position: fixed;
+  z-index: 1000;
+  left: 16px;
+  top: 16px;
+  translate: 0 -180%;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.skipLink:focus-visible {
+  translate: 0;
+}
+
+.appShell {
+  width: min(1440px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+.heroBand {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: end;
+  padding: 10px 0 18px;
+}
+
+.heroCopy {
+  max-width: 820px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--teal);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  margin: 0;
+  color: #10241e;
+  font-size: clamp(2.6rem, 7vw, 5.8rem);
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+
+.heroCopy p:last-child {
+  max-width: 720px;
+  margin: 18px 0 0;
+  color: #40504a;
+  font-size: 1.03rem;
+  line-height: 1.65;
+}
+
+.topControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.segmentedControl {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  min-width: 150px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 30px rgba(23, 33, 29, 0.08);
+}
+
+.segmentedControl button,
+.iconButton,
+.callButton {
+  min-height: 44px;
+  border: 0;
+  cursor: pointer;
+}
+
+.segmentedControl button {
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.segmentedControl button.selected {
+  background: var(--ink);
+  color: #fff;
+}
+
+.iconButton {
+  display: inline-grid;
+  width: 46px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgba(23, 33, 29, 0.08);
+}
+
+.timelinePanel {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  padding: 12px 0 18px;
+  background: linear-gradient(180deg, var(--background) 70%, rgba(246, 247, 242, 0));
+}
+
+.timelineTrack {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  min-height: 80px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(220, 227, 220, 0.9);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 55px rgba(23, 33, 29, 0.1);
+  backdrop-filter: blur(14px);
+}
+
+.timelineTrack::before {
+  position: absolute;
+  right: 40px;
+  left: 40px;
+  top: 29px;
+  height: 3px;
+  border-radius: 999px;
+  background: #d8e0d7;
+  content: "";
+}
+
+.timelineProgress {
+  position: absolute;
+  left: 40px;
+  top: 29px;
+  height: 3px;
+  max-width: calc(100% - 80px);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--teal), var(--blue), var(--coral));
+}
+
+.timeSlot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding-top: 26px;
+  text-align: center;
+}
+
+.timeDot {
+  position: absolute;
+  top: 7px;
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: #bfcac2;
+  box-shadow: 0 0 0 1px rgba(23, 33, 29, 0.08);
+}
+
+.timeDot.complete {
+  background: var(--teal);
+}
+
+.timeDot.current {
+  background: var(--coral);
+  box-shadow: 0 0 0 7px rgba(223, 111, 87, 0.16);
+}
+
+.timeSlot strong {
+  font-size: 0.9rem;
+}
+
+.timeSlot small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.38fr) minmax(360px, 0.72fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.simulationColumn,
+.analysisColumn {
+  display: grid;
+  gap: 22px;
+}
+
+.homePanel,
+.wavePanel,
+.pipelinePanel,
+.phonePanel {
+  border: 1px solid rgba(220, 227, 220, 0.9);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--shadow);
+}
+
+.homePanel,
+.wavePanel,
+.pipelinePanel {
+  padding: 20px;
+}
+
+.sectionHeader {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.sectionHeader.compact {
+  margin-bottom: 8px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.18rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.eventCounter,
+.severityBadge,
+.statusPill {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.eventCounter {
+  background: #edf4f0;
+  color: #2d5d52;
+}
+
+.isometricStage {
+  position: relative;
+  min-height: 520px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(145deg, rgba(54, 166, 140, 0.12), transparent 38%),
+    linear-gradient(315deg, rgba(61, 118, 209, 0.12), transparent 36%),
+    #edf2ec;
+}
+
+.isoGrid {
+  position: absolute;
+  inset: 34px 28px;
+  transform: rotate(-5deg) skew(-9deg);
+}
+
+.room {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(23, 33, 29, 0.08);
+  border-radius: var(--radius);
+  box-shadow:
+    18px 18px 0 rgba(23, 33, 29, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.room span {
+  transform: skew(9deg) rotate(5deg);
+  color: rgba(23, 33, 29, 0.42);
+  font-size: 0.88rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.kitchen {
+  left: 4%;
+  top: 12%;
+  width: 42%;
+  height: 58%;
+  background: #f8ead3;
+}
+
+.living {
+  right: 5%;
+  top: 5%;
+  width: 48%;
+  height: 56%;
+  background: #dfece9;
+}
+
+.utility {
+  right: 10%;
+  bottom: 5%;
+  width: 38%;
+  height: 32%;
+  background: #e5e1f3;
+}
+
+.applianceLayer {
+  position: absolute;
+  inset: 0;
+}
+
+.applianceNode {
+  --appliance-color: var(--teal);
+  position: absolute;
+  display: grid;
+  width: 96px;
+  min-height: 86px;
+  translate: -50% -50%;
+  place-items: center;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
+}
+
+.applianceNode:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.applianceNode:focus-visible {
+  outline: 3px solid rgba(61, 118, 209, 0.45);
+  outline-offset: 4px;
+}
+
+.applianceHalo {
+  position: absolute;
+  inset: 9px 10px 22px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--appliance-color) 20%, white);
+  box-shadow:
+    0 18px 26px rgba(23, 33, 29, 0.16),
+    0 0 0 0 color-mix(in srgb, var(--appliance-color) 22%, transparent);
+}
+
+.applianceIcon {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  background: var(--appliance-color);
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(23, 33, 29, 0.18);
+}
+
+.applianceLabel {
+  position: relative;
+  max-width: 100%;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #20312a;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 8px 18px rgba(23, 33, 29, 0.1);
+}
+
+.waveBody {
+  min-height: 168px;
+}
+
+.baselineText span,
+.adlReadout small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.emptyWave {
+  display: grid;
+  min-height: 150px;
+  place-items: center;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.emptyWave svg {
+  color: var(--teal);
+}
+
+.privacyContent {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  min-height: 160px;
+}
+
+.privacyIcon {
+  display: grid;
+  width: 78px;
+  height: 78px;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: #e7f5ec;
+  color: #1e765a;
+}
+
+.privacyLockButton {
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.privacyLockButton:hover {
+  transform: translateY(-2px);
+  background: #d8efe2;
+}
+
+.privacyLockButton[aria-pressed="true"] {
+  background: #17352d;
+  color: #fff;
+}
+
+.privacyCopy {
+  display: grid;
+  gap: 8px;
+}
+
+.privacyCopy strong {
+  font-size: 1.18rem;
+  line-height: 1.3;
+}
+
+.privacyCopy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.privacyEmpty {
+  gap: 8px;
+  text-align: center;
+}
+
+.processingSteps,
+.rawDataPanel {
+  grid-column: 1 / -1;
+}
+
+.processingSteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: rgba(231, 245, 236, 0.72);
+  color: #1e765a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.processingSteps span {
+  min-width: 0;
+}
+
+.rawDataPanel {
+  overflow: hidden;
+  border: 1px solid rgba(23, 33, 29, 0.12);
+  border-radius: var(--radius);
+  background: #fbfcf9;
+}
+
+.rawDataPanel dl {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: rgba(23, 33, 29, 0.08);
+}
+
+.rawDataPanel dl div {
+  min-width: 0;
+  padding: 10px;
+  background: #fff;
+}
+
+.rawDataPanel dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.rawDataPanel dd {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rawWaveform {
+  display: flex;
+  height: 72px;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 12px 12px 8px;
+}
+
+.rawWaveform span {
+  --bar-height: 10%;
+  flex: 1;
+  min-width: 4px;
+  height: var(--bar-height);
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(180deg, var(--teal), var(--blue));
+}
+
+.rawDataPanel p {
+  margin: 0;
+  padding: 0 12px 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.severityBadge.normal {
+  background: #e7f5ec;
+  color: #1e765a;
+}
+
+.severityBadge.watch {
+  background: #fff0cf;
+  color: #8b5e00;
+}
+
+.severityBadge.caution {
+  background: #ffe8df;
+  color: #9a3927;
+}
+
+.pipelineFlow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.pipelineFlow::before {
+  position: absolute;
+  right: 10%;
+  left: 10%;
+  top: 27px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--blue), var(--coral));
+  content: "";
+}
+
+.pipelineStep {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.pipelineStep.active {
+  color: var(--ink);
+}
+
+.pipelineIcon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--blue);
+  box-shadow: 0 12px 28px rgba(23, 33, 29, 0.11);
+}
+
+.pipelineStep.active .pipelineIcon {
+  border-color: rgba(47, 157, 132, 0.32);
+  color: var(--teal);
+}
+
+.pipelineReadout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: 14px;
+}
+
+.adlReadout,
+.gaugeWrap {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcf9;
+}
+
+.adlReadout {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.adlReadout span,
+.phoneMetrics span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.adlReadout strong {
+  font-size: 1.26rem;
+  line-height: 1.2;
+}
+
+.gaugeWrap {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.anomalyGauge {
+  --gauge-value: 0deg;
+  display: grid;
+  width: 82px;
+  height: 82px;
+  place-items: center;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at center, #fff 0 55%, transparent 57%),
+    conic-gradient(var(--teal) var(--gauge-value), #dfe6df 0);
+}
+
+.anomalyGauge.watch {
+  background:
+    radial-gradient(circle at center, #fff 0 55%, transparent 57%),
+    conic-gradient(var(--amber) var(--gauge-value), #dfe6df 0);
+}
+
+.anomalyGauge.caution {
+  background:
+    radial-gradient(circle at center, #fff 0 55%, transparent 57%),
+    conic-gradient(var(--coral) var(--gauge-value), #dfe6df 0);
+}
+
+.anomalyGauge span {
+  font-size: 1.16rem;
+  font-weight: 950;
+}
+
+.baselineText {
+  display: grid;
+  gap: 5px;
+}
+
+.baselineText strong {
+  line-height: 1.35;
+}
+
+.phonePanel {
+  padding: 18px;
+}
+
+.phoneFrame {
+  position: relative;
+  max-width: 390px;
+  min-height: 680px;
+  margin: 0 auto;
+  padding: 18px;
+  overflow: hidden;
+  border: 10px solid #16241f;
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, #f9fbf7, #edf4ef),
+    var(--surface);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+    0 24px 60px rgba(23, 33, 29, 0.18);
+}
+
+.phoneTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 2px 16px;
+  color: #25332d;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.phoneStatus {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.phoneStatus h2 {
+  margin: 0;
+  font-size: 1.36rem;
+  line-height: 1.2;
+}
+
+.statusPill.calm {
+  background: #e7f5ec;
+  color: #1e765a;
+}
+
+.statusPill.warm {
+  background: #ffe8df;
+  color: #9a3927;
+}
+
+.statusPill.alert {
+  background: #fff0cf;
+  color: #8b5e00;
+}
+
+.reportBubble {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 8px;
+  gap: 10px;
+  align-items: start;
+  min-height: 174px;
+  margin: 22px 0 16px;
+  padding: 18px;
+  border-radius: 20px 20px 20px 6px;
+  background: #17352d;
+  color: #fff;
+  box-shadow: 0 18px 42px rgba(23, 53, 45, 0.24);
+}
+
+.reportBubble svg {
+  color: #86dfc6;
+}
+
+.reportBubble p {
+  min-height: 112px;
+  margin: 0;
+  line-height: 1.65;
+}
+
+.typingCursor {
+  display: inline-block;
+  width: 3px;
+  height: 1.2em;
+  border-radius: 999px;
+  background: #86dfc6;
+  animation: blinkCursor 0.9s steps(2, start) infinite;
+}
+
+@keyframes blinkCursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+.phoneMetrics {
+  display: grid;
+  grid-template-columns: 1fr 0.52fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.phoneMetrics div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.phoneMetrics strong {
+  line-height: 1.2;
+}
+
+.privacyFeed {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-height: 86px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.privacyFeed svg {
+  color: var(--teal);
+}
+
+.privacyFeed div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.privacyFeed strong {
+  line-height: 1.25;
+}
+
+.privacyFeed span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.callButton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 900;
+}
+
+.phoneHomeIndicator {
+  width: 42%;
+  height: 5px;
+  margin: 18px auto 0;
+  border-radius: 999px;
+  background: rgba(23, 33, 29, 0.28);
+}
+
+@media (max-width: 1080px) {
+  .appShell {
+    padding: 22px;
+  }
+
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysisColumn {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.8fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 820px) {
+  .appShell {
+    padding: 16px;
+  }
+
+  .heroBand {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .topControls {
+    justify-content: flex-start;
+  }
+
+  .timelineTrack {
+    gap: 8px;
+    padding: 12px 8px;
+  }
+
+  .timelineTrack::before {
+    right: 24px;
+    left: 24px;
+  }
+
+  .timelineProgress {
+    left: 24px;
+    max-width: calc(100% - 48px);
+  }
+
+  .timeSlot strong {
+    font-size: 0.78rem;
+  }
+
+  .timeSlot small {
+    font-size: 0.72rem;
+  }
+
+  .isometricStage {
+    min-height: 430px;
+  }
+
+  .applianceNode {
+    width: 86px;
+  }
+
+  .pipelineReadout,
+  .analysisColumn {
+    grid-template-columns: 1fr;
+  }
+
+  .phoneFrame {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .appShell {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: clamp(2.45rem, 16vw, 3.5rem);
+  }
+
+  .heroCopy p:last-child {
+    font-size: 0.95rem;
+  }
+
+  .topControls,
+  .sectionHeader,
+  .phoneStatus {
+    align-items: stretch;
+  }
+
+  .sectionHeader,
+  .phoneStatus {
+    flex-direction: column;
+  }
+
+  .segmentedControl {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .timelinePanel {
+    padding-bottom: 12px;
+  }
+
+  .timelineTrack {
+    min-height: 70px;
+  }
+
+  .timeSlot {
+    padding-top: 24px;
+  }
+
+  .timeSlot strong {
+    font-size: 0.7rem;
+  }
+
+  .timeSlot small {
+    display: none;
+  }
+
+  .homePanel,
+  .wavePanel,
+  .pipelinePanel,
+  .phonePanel {
+    padding: 14px;
+  }
+
+  .isometricStage {
+    min-height: 370px;
+  }
+
+  .isoGrid {
+    inset: 28px 18px;
+  }
+
+  .applianceNode {
+    width: 76px;
+    min-height: 76px;
+  }
+
+  .applianceIcon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .applianceLabel {
+    font-size: 0.68rem;
+  }
+
+  .gaugeWrap {
+    grid-template-columns: 76px minmax(0, 1fr);
+    padding: 12px;
+  }
+
+  .anomalyGauge {
+    width: 76px;
+    height: 76px;
+  }
+
+  .phoneFrame {
+    min-height: 620px;
+    padding: 16px;
+    border-width: 8px;
+    border-radius: 28px;
+  }
+
+  .reportBubble {
+    grid-template-columns: 24px minmax(0, 1fr) 6px;
+    min-height: 188px;
+    padding: 16px;
+  }
+}
+
+/* Immersive Interaction Home */
+.appShell {
+  width: 100%;
+  max-width: none;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+.homeExperience {
+  position: relative;
+  min-height: calc(100vh - 32px);
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #dce9e3;
+  isolation: isolate;
+}
+
+.homeSceneImage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  object-position: center;
+  filter: saturate(1.22) contrast(1.08);
+}
+
+.homeSceneShade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(246, 247, 242, 0.16), rgba(246, 247, 242, 0.01) 28%),
+    linear-gradient(90deg, rgba(11, 27, 23, 0.05), transparent 42%),
+    linear-gradient(0deg, rgba(18, 31, 26, 0.18), transparent 34%);
+}
+
+.homeChrome,
+.homeTimeline,
+.wavePeekButton,
+.phoneOverlay,
+.bottomAppLayout,
+.floatingDetailPanel {
+  position: absolute;
+  z-index: 5;
+}
+
+.homeChrome {
+  top: 22px;
+  right: 24px;
+  left: 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.compactBrand,
+.topControls,
+.homeTimeline,
+.wavePeekButton,
+.phoneOverlay,
+.bottomAppLayout,
+.floatingDetailPanel {
+  pointer-events: auto;
+}
+
+.compactBrand {
+  width: min(340px, 45vw);
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 18px 50px rgba(23, 33, 29, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.compactBrand .eyebrow {
+  margin-bottom: 4px;
+}
+
+.compactBrand h1 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.4vw, 2rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.homeTimeline {
+  top: 112px;
+  right: 24px;
+  left: 24px;
+}
+
+.homeExperience .timelinePanel {
+  position: static;
+  padding: 0;
+  background: transparent;
+}
+
+.homeExperience .timelineTrack {
+  min-height: 66px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 50px rgba(23, 33, 29, 0.12);
+}
+
+.homeExperience .timelineTrack::before,
+.homeExperience .timelineProgress {
+  top: 25px;
+}
+
+.homeExperience .timeSlot {
+  padding-top: 24px;
+}
+
+.homeExperience .timeSlot strong {
+  font-size: 0.82rem;
+}
+
+.homeExperience .timeSlot small {
+  font-size: 0.72rem;
+}
+
+.homeExperience .applianceLayer {
+  z-index: 4;
+}
+
+.homeExperience .applianceNode {
+  width: 92px;
+  min-height: 84px;
+}
+
+.homeExperience .applianceIcon {
+  width: 48px;
+  height: 48px;
+}
+
+.wavePeekButton {
+  top: 198px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 14px 34px rgba(23, 33, 29, 0.12);
+  color: #16342d;
+  cursor: pointer;
+  font-weight: 900;
+  backdrop-filter: blur(14px);
+}
+
+.phoneOverlay {
+  right: clamp(14px, 2.2vw, 32px);
+  bottom: 126px;
+}
+
+.phoneOverlay .phonePanel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.phoneOverlay .phoneFrame {
+  width: clamp(248px, 22vw, 318px);
+  min-height: 442px;
+  padding: 14px;
+  border-width: 8px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(249, 251, 247, 0.96), rgba(237, 244, 239, 0.94));
+}
+
+.phoneOverlay .phoneTopBar {
+  padding-bottom: 10px;
+}
+
+.phoneOverlay .phoneStatus h2 {
+  font-size: 1.05rem;
+}
+
+.phoneOverlay .statusPill {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 0.74rem;
+}
+
+.phoneOverlay .reportBubble {
+  min-height: 108px;
+  margin: 14px 0 10px;
+  padding: 13px;
+  grid-template-columns: 22px minmax(0, 1fr) 6px;
+  border-radius: 16px 16px 16px 6px;
+  font-size: 0.82rem;
+}
+
+.phoneOverlay .reportBubble p {
+  min-height: 68px;
+  line-height: 1.55;
+}
+
+.phoneOverlay .phoneMetrics {
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.phoneOverlay .phoneMetrics div {
+  padding: 10px;
+}
+
+.phoneOverlay .privacyFeed {
+  min-height: 74px;
+  padding: 10px;
+}
+
+.phoneOverlay .callButton {
+  min-height: 40px;
+  margin-top: 12px;
+}
+
+.phoneOverlay .phoneHomeIndicator {
+  display: none;
+}
+
+.bottomAppLayout {
+  right: clamp(330px, 29vw, 420px);
+  bottom: 22px;
+  left: 24px;
+}
+
+.pipelineDock {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(220px, 0.8fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 55px rgba(23, 33, 29, 0.16);
+  backdrop-filter: blur(18px);
+}
+
+.pipelineDockSteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.dockStep {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.dockStep.active {
+  border-color: rgba(47, 157, 132, 0.35);
+  color: #17443a;
+}
+
+.pipelineDockReadout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 10px;
+  align-items: center;
+}
+
+.pipelineDockReadout div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.pipelineDockReadout span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.pipelineDockReadout strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miniGauge {
+  --gauge-value: 0deg;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at center, #fff 0 55%, transparent 57%),
+    conic-gradient(var(--teal) var(--gauge-value), #dfe6df 0);
+}
+
+.miniGauge.watch {
+  background:
+    radial-gradient(circle at center, #fff 0 55%, transparent 57%),
+    conic-gradient(var(--amber) var(--gauge-value), #dfe6df 0);
+}
+
+.miniGauge.caution {
+  background:
+    radial-gradient(circle at center, #fff 0 55%, transparent 57%),
+    conic-gradient(var(--coral) var(--gauge-value), #dfe6df 0);
+}
+
+.dockDetailButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.floatingDetailPanel {
+  right: clamp(18px, 3vw, 42px);
+  bottom: 104px;
+  width: min(720px, calc(100% - 48px));
+  max-height: min(68vh, 640px);
+  overflow: auto;
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(14, 24, 20, 0.26);
+}
+
+.floatingDetailPanel .wavePanel,
+.floatingDetailPanel .pipelinePanel {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.closePanelButton {
+  position: sticky;
+  z-index: 2;
+  top: 14px;
+  float: right;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  margin: 14px 14px -54px 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: #14241f;
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 1080px) {
+  .homeExperience {
+    min-height: 980px;
+  }
+
+  .phoneOverlay {
+    right: 18px;
+    bottom: 144px;
+  }
+
+  .bottomAppLayout {
+    right: 18px;
+  }
+
+  .pipelineDock {
+    grid-template-columns: 1fr auto;
+  }
+
+  .pipelineDockReadout {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 780px) {
+  .appShell {
+    padding: 10px;
+  }
+
+  .homeExperience {
+    min-height: calc(100vh - 20px);
+    border-radius: 14px;
+  }
+
+  .homeChrome {
+    top: 14px;
+    right: 12px;
+    left: 12px;
+    flex-direction: column;
+  }
+
+  .compactBrand {
+    width: min(100%, 320px);
+    padding: 12px;
+  }
+
+  .compactBrand h1 {
+    font-size: 1.35rem;
+  }
+
+  .homeTimeline {
+    top: 158px;
+    right: 12px;
+    left: 12px;
+  }
+
+  .homeExperience .timelineTrack {
+    min-height: 58px;
+    padding: 8px;
+  }
+
+  .homeExperience .timeSlot strong {
+    font-size: 0.68rem;
+  }
+
+  .homeExperience .timeSlot small {
+    display: none;
+  }
+
+  .wavePeekButton {
+    top: 232px;
+    left: 12px;
+  }
+
+  .homeExperience .applianceNode {
+    width: 74px;
+    min-height: 72px;
+  }
+
+  .homeExperience .applianceIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .homeExperience .applianceLabel {
+    font-size: 0.66rem;
+  }
+
+  .phoneOverlay {
+    width: 274px;
+    right: 12px;
+    bottom: 172px;
+    left: auto;
+  }
+
+  .phoneOverlay .phoneFrame {
+    width: 274px;
+    min-height: 422px;
+    margin: 0 0 0 auto;
+    padding: 12px;
+  }
+
+  .phoneOverlay .reportBubble {
+    min-height: 98px;
+    font-size: 0.76rem;
+  }
+
+  .phoneOverlay .reportBubble p {
+    min-height: 60px;
+  }
+
+  .bottomAppLayout {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .pipelineDock {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 10px;
+  }
+
+  .pipelineDockSteps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dockStep {
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 6px;
+  }
+
+  .dockDetailButton {
+    width: auto;
+  }
+
+  .pipelineDockReadout {
+    grid-column: 1 / -1;
+  }
+
+  .floatingDetailPanel {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    max-height: 74vh;
+  }
+
+  .floatingDetailPanel .privacyContent,
+  .floatingDetailPanel .pipelineReadout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .homeExperience {
+    min-height: 1020px;
+  }
+
+  .phoneOverlay {
+    width: min(100% - 24px, 300px);
+    bottom: 226px;
+  }
+
+  .phoneOverlay .phoneFrame {
+    width: 100%;
+  }
+
+  .pipelineDock {
+    grid-template-columns: 1fr;
+  }
+
+  .pipelineDockSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .dockStep {
+    justify-content: flex-start;
+  }
+
+  .dockDetailButton {
+    width: 100%;
+  }
+}
