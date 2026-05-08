@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Project documentation
+    url: https://github.com/Junyeop-Lee/gentlesight-demo#readme
+    about: Check the README before opening an issue.
