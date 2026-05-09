@@ -118,6 +118,7 @@ Raw fields are blocked even when nested inside another object.
 
 ## Documentation
 
+- [Product Requirements Document](docs/prd.md)
 - [Product Plan](docs/product-plan.md)
 
 ## Repository Management
