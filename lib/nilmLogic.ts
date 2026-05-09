@@ -8,6 +8,7 @@ import {
   type GuardianReport,
   interactionSlots
 } from "@/data/routineDataset";
+import { getRoutinePhaseForClock } from "@/lib/simulationClock";
 
 const applianceLabels = new Map(
   applianceCatalog.map((appliance) => [appliance.id, appliance.label])
@@ -18,24 +19,24 @@ export type ScenarioMode = "baseline" | "delayed";
 export function createApplianceEvent(
   applianceId: ApplianceId,
   eventIndex: number,
-  scenarioMode: ScenarioMode
+  currentTime: string,
+  phaseEventIndex: number
 ): ApplianceEvent {
+  const phase = getRoutinePhaseForClock(currentTime);
+  const phaseSlots = interactionSlots.filter((slot) => slot.phase === phase);
   const slot =
+    phaseSlots[Math.min(phaseEventIndex, phaseSlots.length - 1)] ??
     interactionSlots[Math.min(eventIndex, interactionSlots.length - 1)];
   const fingerprint = applianceFingerprints[applianceId];
   const label = applianceLabels.get(applianceId) ?? applianceId;
-  const time =
-    scenarioMode === "delayed" && slot.phase === "morning" && slot.delayedTime
-      ? slot.delayedTime
-      : slot.time;
 
   return {
     id: `${slot.id}-${applianceId}-${eventIndex}`,
     appliance: applianceId,
     applianceLabel: label,
-    time,
+    time: currentTime,
     baselineTime: slot.time,
-    phase: slot.phase,
+    phase,
     ...fingerprint
   };
 }
@@ -129,13 +130,15 @@ export function detectAnomaly(
     const firstMorning = morningEvents[0];
     const deltaMinutes = minutesBetween(firstMorning.baselineTime, firstMorning.time);
 
-    return {
-      severity: "caution",
-      baselineText: "평소 아침 루틴보다 늦은 시작",
-      currentText: "오늘 첫 생활 신호가 늦게 요약됨",
-      deltaMinutes,
-      gaugeValue: Math.min(88, 45 + Math.round(deltaMinutes / 2))
-    };
+    if (deltaMinutes > 20) {
+      return {
+        severity: "caution",
+        baselineText: "평소 아침 루틴보다 늦은 시작",
+        currentText: "오늘 첫 생활 신호가 늦게 요약됨",
+        deltaMinutes,
+        gaugeValue: Math.min(88, 45 + Math.round(deltaMinutes / 2))
+      };
+    }
   }
 
   const latest = events[events.length - 1];

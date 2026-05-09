@@ -149,6 +149,22 @@ html, body {
 }
 .homeChrome h1 { color: var(--ink); }
 
+.homeChrome .topControls {
+  justify-content: flex-start;
+}
+
+.homeChrome .clockControlPanel,
+.homeChrome .segmentedControl {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.homeChrome .clockReadout strong {
+  color: #13241f;
+}
+
 .timelineOverlay {
   position: absolute;
   top: 16px;

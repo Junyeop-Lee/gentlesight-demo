@@ -1,8 +1,16 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MotionConfig } from "framer-motion";
-import { ShieldCheck, RotateCcw, X, Smartphone } from "lucide-react";
+import {
+  Gauge,
+  Pause,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+  Smartphone,
+  X
+} from "lucide-react";
 import {
   applianceCatalog,
   interactionSlots,
@@ -16,6 +24,16 @@ import {
   inferAdlState,
   type ScenarioMode
 } from "@/lib/nilmLogic";
+import {
+  DEFAULT_SIMULATION_MINUTES_PER_SECOND,
+  FAST_SIMULATION_MINUTES_PER_SECOND,
+  SIMULATION_END_MINUTES,
+  SIMULATION_START_MINUTES,
+  formatClock,
+  formatKoreanClock,
+  getRoutinePhaseForMinutes,
+  getTimelineProgress
+} from "@/lib/simulationClock";
 import { GuardianPhone } from "@/components/GuardianPhone";
 import { HomeSimulator } from "@/components/HomeSimulator";
 import { PipelineDock } from "@/components/PipelineDock";
@@ -30,6 +48,16 @@ export function NilmGuardianDemo() {
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("delayed");
   const [detailPanel, setDetailPanel] = useState<DetailPanel>(null);
   const [isPhoneOpen, setIsPhoneOpen] = useState(false);
+  const [currentMinutes, setCurrentMinutes] = useState(
+    SIMULATION_START_MINUTES
+  );
+  const [isClockRunning, setIsClockRunning] = useState(true);
+  const [isFastPreview, setIsFastPreview] = useState(false);
+
+  const currentTime = formatClock(currentMinutes);
+  const clockSpeed = isFastPreview
+    ? FAST_SIMULATION_MINUTES_PER_SECOND
+    : DEFAULT_SIMULATION_MINUTES_PER_SECOND;
 
   const latestEvent = events.at(-1);
   const adlState = useMemo(() => inferAdlState(events), [events]);
@@ -42,7 +70,27 @@ export function NilmGuardianDemo() {
     [adlState, anomaly, latestEvent]
   );
 
-  const progress = Math.min(events.length / interactionSlots.length, 1);
+  const progress = getTimelineProgress(currentMinutes);
+
+  useEffect(() => {
+    if (!isClockRunning) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setCurrentMinutes((minutes) =>
+        Math.min(minutes + clockSpeed, SIMULATION_END_MINUTES)
+      );
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [clockSpeed, isClockRunning]);
+
+  useEffect(() => {
+    if (currentMinutes >= SIMULATION_END_MINUTES && isClockRunning) {
+      setIsClockRunning(false);
+    }
+  }, [currentMinutes, isClockRunning]);
 
   const handleApplianceClick = useCallback(
     (applianceId: ApplianceId) => {
@@ -51,13 +99,23 @@ export function NilmGuardianDemo() {
           return currentEvents;
         }
 
+        const currentPhase = getRoutinePhaseForMinutes(currentMinutes);
+        const phaseEventIndex = currentEvents.filter(
+          (event) => event.phase === currentPhase
+        ).length;
+
         return [
           ...currentEvents,
-          createApplianceEvent(applianceId, currentEvents.length, scenarioMode)
+          createApplianceEvent(
+            applianceId,
+            currentEvents.length,
+            currentTime,
+            phaseEventIndex
+          )
         ];
       });
     },
-    [scenarioMode]
+    [currentMinutes, currentTime]
   );
 
   const handleScenarioChange = useCallback((mode: ScenarioMode) => {
@@ -67,6 +125,8 @@ export function NilmGuardianDemo() {
 
   const handleReset = useCallback(() => {
     setEvents([]);
+    setCurrentMinutes(SIMULATION_START_MINUTES);
+    setIsClockRunning(true);
     setDetailPanel(null);
   }, []);
 
@@ -96,7 +156,45 @@ export function NilmGuardianDemo() {
                   <h1 id="home-title">GentleSight</h1>
                 </div>
 
-                <div className="topControls" aria-label="시나리오 제어">
+                <div className="topControls" aria-label="시뮬레이션 제어">
+                  <div className="clockControlPanel" aria-label="시간 흐름 제어">
+                    <div className="clockReadout" aria-live="polite">
+                      <span>현재 시간</span>
+                      <strong>{formatKoreanClock(currentMinutes)}</strong>
+                      <small>{isClockRunning ? "자동 흐름" : "일시정지"}</small>
+                    </div>
+                    <button
+                      className="iconButton"
+                      type="button"
+                      aria-label={isClockRunning ? "시간 일시정지" : "시간 재생"}
+                      aria-pressed={isClockRunning}
+                      onClick={() => setIsClockRunning((running) => !running)}
+                    >
+                      {isClockRunning ? (
+                        <Pause aria-hidden="true" size={18} />
+                      ) : (
+                        <Play aria-hidden="true" size={18} />
+                      )}
+                    </button>
+                    <button
+                      className={`iconButton ${isFastPreview ? "selected" : ""}`}
+                      type="button"
+                      aria-label="빠르게 보기"
+                      aria-pressed={isFastPreview}
+                      onClick={() => setIsFastPreview((fast) => !fast)}
+                    >
+                      <Gauge aria-hidden="true" size={18} />
+                    </button>
+                    <button
+                      className="iconButton"
+                      type="button"
+                      aria-label="시뮬레이션 초기화"
+                      onClick={handleReset}
+                    >
+                      <RotateCcw aria-hidden="true" size={18} />
+                    </button>
+                  </div>
+
                   <div className="segmentedControl" role="group" aria-label="루틴 모드">
                     <button
                       className={scenarioMode === "baseline" ? "selected" : ""}
@@ -115,21 +213,13 @@ export function NilmGuardianDemo() {
                       지연
                     </button>
                   </div>
-                  <button
-                    className="iconButton"
-                    type="button"
-                    aria-label="시뮬레이션 초기화"
-                    onClick={handleReset}
-                  >
-                    <RotateCcw aria-hidden="true" size={18} />
-                  </button>
                 </div>
               </div>
 
               {!isPhoneOpen && (
                 <>
                   <div className="timelineOverlay">
-                    <Timeline events={events} progress={progress} />
+                    <Timeline currentMinutes={currentMinutes} progress={progress} />
                   </div>
 
                   <div className="pipelineOverlay">

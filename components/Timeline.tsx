@@ -1,14 +1,17 @@
 import { motion } from "framer-motion";
-import { timelineSlots, type ApplianceEvent } from "@/data/routineDataset";
+import { timelineSlots } from "@/data/routineDataset";
+import {
+  getRoutinePhaseForMinutes,
+  parseClockToMinutes
+} from "@/lib/simulationClock";
 
 type TimelineProps = {
-  events: ApplianceEvent[];
+  currentMinutes: number;
   progress: number;
 };
 
-export function Timeline({ events, progress }: TimelineProps) {
-  const completedPhases = new Set(events.map((event) => event.phase));
-  const currentPhase = events.at(-1)?.phase ?? "morning";
+export function Timeline({ currentMinutes, progress }: TimelineProps) {
+  const currentPhase = getRoutinePhaseForMinutes(currentMinutes);
 
   return (
     <section className="timelinePanel" aria-label="하루 타임라인">
@@ -20,7 +23,7 @@ export function Timeline({ events, progress }: TimelineProps) {
           transition={{ duration: 0.45, ease: "easeOut" }}
         />
         {timelineSlots.map((slot) => {
-          const isComplete = completedPhases.has(slot.phase);
+          const isComplete = currentMinutes >= parseClockToMinutes(slot.shortLabel);
           const isCurrent = currentPhase === slot.phase;
 
           return (
