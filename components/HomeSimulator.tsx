@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
 import {
   type ApplianceId,
@@ -10,6 +11,7 @@ type HomeSimulatorProps = {
   appliances: ApplianceMeta[];
   onApplianceClick: (applianceId: ApplianceId) => void;
   disabled: boolean;
+  lightingLevel: number;
   children?: ReactNode;
 };
 
@@ -17,10 +19,20 @@ export function HomeSimulator({
   appliances,
   onApplianceClick,
   disabled,
+  lightingLevel,
   children
 }: HomeSimulatorProps) {
   return (
-    <section className="homePanel homeExperience" aria-labelledby="home-title">
+    <section
+      className="homePanel homeExperience"
+      aria-labelledby="home-title"
+      style={
+        {
+          "--home-lighting": lightingLevel,
+          "--home-shade-opacity": Math.max(0, (1 - lightingLevel) * 0.58)
+        } as CSSProperties
+      }
+    >
       <div className="homeSceneWrapper">
         <motion.img
           className="homeSceneImage"
@@ -35,6 +47,7 @@ export function HomeSimulator({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
         />
+        <div className="homeSceneShade" aria-hidden="true" />
         <div className="applianceLayer">
         {appliances.map((appliance) => (
           <ApplianceNode

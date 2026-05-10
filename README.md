@@ -6,24 +6,24 @@ The demo uses local mock data only. It does not connect to a live NILM model, da
 
 ## Overview
 
-GentleSight presents a home scene where users can interact with household appliances over a simulated daily timeline. Each interaction accumulates into routine signals, passes through a three-step AI pipeline, and updates a guardian phone report.
+GentleSight presents a realistic home scene where simulated time flows on its own. The app compares the current day against a mock 28-day personal baseline and summarizes only living-rhythm changes for a guardian-facing phone UI.
 
 The prototype focuses on:
 
-- Storytelling through a day timeline
+- Autonomous day simulation with reset, pause, and fast preview controls
 - Appliance interaction over a realistic home image
-- ADL inference from appliance combinations
-- Baseline/anomaly comparison
-- Guardian report generation with typing animation
-- A privacy layer that shows how raw signals are summarized before AI usage
+- Personal baseline comparison without manual normal/delayed scenario toggles
+- Role-specific Guardian Phone reports for family guardians and social workers
+- Privacy-safe living-rhythm panels instead of raw appliance logs
+- A locked educational explainer showing how user-created demo inputs are summarized
 
 ## Features
 
 - Interactive home view with appliance touch targets
-- Timeline for morning, noon, evening, and night routine progression
-- Guardian phone panel with live Korean report copy
-- Pipeline summary for inference, anomaly detection, and LLM generation
-- Privacy summary panel with an optional raw-signal explainer
+- Autonomous simulated time starting at 07:30
+- Bottom action bar with `상태 보기`, `평소와 비교`, and `프라이버시 요약`
+- Guardian phone panel with role selection and Korean report copy
+- Privacy summary panel with explicit confirmation before raw-processing logs
 - Future AI API boundary at `POST /api/report`
 
 ## Tech Stack
@@ -78,7 +78,7 @@ app/
   api/report/       Privacy-safe report API placeholder
   globals.css       Shared UI styles
   prototype.css     Full-screen prototype layout overrides
-components/         UI components for home, timeline, pipeline, phone, privacy
+components/         UI components for home, action panels, phone, privacy
 data/               Mock routine and appliance dataset
 docs/               Product and planning documents
 lib/                Rule-based NILM logic and AI payload helpers
@@ -90,10 +90,10 @@ public/             Static prototype images
 
 The default guardian UI does not send raw appliance events to the AI report endpoint. The API rejects raw event fields such as `events`, `appliance`, `applianceLabel`, `powerDelta`, `duration`, `waveform`, `time`, and `baselineTime`.
 
-For prototype explanation, the privacy panel can reveal raw values after an explicit user action. This is intended to show how raw signals are transformed into safer summaries:
+For prototype explanation, the privacy panel can reveal raw processing logs only after explicit confirmation. This is intended to show how user-created demo inputs are transformed into safer summaries:
 
 ```text
-Raw signal -> Local routine summary -> AI-safe report input
+Raw demo input -> De-identified living-rhythm signal -> AI-safe report input
 ```
 
 ## AI API Contract
@@ -107,10 +107,13 @@ Expected payload:
   "routineState": "아침 루틴 지연",
   "confidence": 91,
   "severity": "caution",
+  "role": "family",
   "riskScore": 84,
-  "trendSummary": "평소보다 늦은 루틴 시작",
-  "recommendedAction": "안부 전화 걸기",
-  "privacyPolicy": "No raw activity data."
+  "baselineComparison": "개인 기준선 07:50-08:20",
+  "reasonSummary": "오전 활동 시작이 기준선보다 늦음",
+  "trendSummary": "확인 필요",
+  "recommendedAction": "전화하기",
+  "privacyPolicyMarker": "PRIVACY_SAFE_SUMMARY_ONLY"
 }
 ```
 

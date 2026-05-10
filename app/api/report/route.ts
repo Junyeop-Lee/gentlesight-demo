@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
-import { buildReportPrompt, type PrivacySafeAiInput } from "@/lib/privacySafeAi";
-
-const blockedRawKeys = new Set([
-  "appliance",
-  "applianceLabel",
-  "powerDelta",
-  "duration",
-  "waveform",
-  "events",
-  "time",
-  "baselineTime"
-]);
+import {
+  buildReportPrompt,
+  findRawKeyPath,
+  type PrivacySafeAiInput
+} from "@/lib/privacySafeAi";
 
 export async function POST(request: Request) {
   let body: Partial<PrivacySafeAiInput> & Record<string, unknown>;
@@ -44,42 +37,21 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({
-    prompt: buildReportPrompt(body),
-    message:
-      "AI API 연결 전까지는 프라이버시 보호 요약만 검증합니다. 실제 생성 모델 연결 시에도 원천 데이터는 전송하지 않습니다."
-  });
-}
-
-function findRawKeyPath(value: unknown, path: string[] = []): string | null {
-  if (!value || typeof value !== "object") {
-    return null;
+  try {
+    return NextResponse.json({
+      prompt: buildReportPrompt(body),
+      message:
+        "AI API 연결 전까지는 프라이버시 보호 요약만 검증합니다. 실제 생성 모델 연결 시에도 원천 데이터는 전송하지 않습니다."
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "현재 리포트를 생성하지 못했습니다. 감지된 생활 변화 요약을 확인해주세요."
+      },
+      { status: 500 }
+    );
   }
-
-  if (Array.isArray(value)) {
-    for (let index = 0; index < value.length; index += 1) {
-      const found = findRawKeyPath(value[index], [...path, String(index)]);
-      if (found) {
-        return found;
-      }
-    }
-
-    return null;
-  }
-
-  for (const [key, nestedValue] of Object.entries(value)) {
-    const nextPath = [...path, key];
-    if (blockedRawKeys.has(key)) {
-      return nextPath.join(".");
-    }
-
-    const found = findRawKeyPath(nestedValue, nextPath);
-    if (found) {
-      return found;
-    }
-  }
-
-  return null;
 }
 
 function isPrivacySafeAiInput(
@@ -89,9 +61,12 @@ function isPrivacySafeAiInput(
     typeof value.routineState === "string" &&
     typeof value.confidence === "number" &&
     typeof value.severity === "string" &&
+    (value.role === "family" || value.role === "socialWorker") &&
     typeof value.riskScore === "number" &&
+    typeof value.baselineComparison === "string" &&
+    typeof value.reasonSummary === "string" &&
     typeof value.trendSummary === "string" &&
     typeof value.recommendedAction === "string" &&
-    typeof value.privacyPolicy === "string"
+    typeof value.privacyPolicyMarker === "string"
   );
 }

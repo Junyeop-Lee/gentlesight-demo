@@ -1,33 +1,73 @@
 # Product Plan
 
-## 1. 시나리오 및 상호작용 설계 (Storytelling)
+This document is the implementation-facing companion to `docs/prd.md`.
 
-단순한 클릭이 아니라, '하루의 흐름'을 보여주는 것이 중요합니다.   
+## 1. Core Experience
 
-타임라인 시스템: 화면 상단에 '오전 8시', '오후 12시' 등의 시간 축을 두고, 사용자가 특정 가전제품(전자레인지, TV 등)을 웹 사이트 접속 시 부터, 시간이 흐르며 데이터가 쌓이는 연출이 필요합니다.   
+GentleSight should feel like an Interactive Home first. The home image is the main screen, while supporting information appears as overlays:
 
-상태 정의: 각 가전제품을 클릭했을 때 발생하는 '에너지 핑거프린트'를 시각적인 파형(Waveform) 애니메이션으로 보여줄 수 있는 인터페이스를 조성하여 해당 인터페이스 클릭시 파형을 통해 어떤 제품을 사용하였다는 것을 보여줌으로써 NILM 기술을 직관적으로 이해를 돕습니다.
+- Top-left: compact GentleSight brand
+- Top-right: simulated time, play/pause, fast preview, reset
+- Center: realistic home scene with labeled demo input buttons
+- Bottom-center: `상태 보기`, `평소와 비교`, `프라이버시 요약`
+- Bottom-right: Guardian Phone entry or phone overlay
 
-## 2. AI 파이프라이닝의 시각화 (Logic Visualization)
+The product should not present a technical pipeline as the main story. The user-facing story is living-rhythm change, not raw energy inspection.
 
-웹사이트 내에서 데이터가 어떻게 리포트로 변하는지 3단계 과정을 보여주어야 합니다.   
+## 2. Time And Baseline Model
 
-Step 1 (Inference): 클릭한 가전제품들이 "식사 준비 중", "휴식 중"과 같은 ADL(일상생활 행동)로 변환되는 과정을 핸드폰 UI에서 텍스트나 아이콘으로 표시합니다.   
+Time flows automatically from 07:30. A user does not need to click anything for the system to produce state changes.
 
-Step 2 (Anomaly Detection): '평소 패턴(Baseline)' 을 기본적으로 mock data를 활용하여 생성하고 이에 대비 현재 행동이 어떻게 다른지 보여주는 게이지나 그래프를 하단 컴포넌트로 그래프로 확인할 수 있도록 하며 핸드폰 UI에선 텍스트나 아이콘으로 표시합니다.   (예: "평소보다 아침 식사 시간이 늦어짐")   
+The current day is compared against a mock 28-day personal baseline:
 
+- Before 08:40 without a morning signal: `안정`
+- Around 08:40 without a morning signal: `관찰`
+- Around 09:00 without a morning signal: `확인 필요`
+- If a morning signal appears late: `관찰 - 늦게 확인됨`
 
-Step 3 (LLM Generation): 핸드폰 UI의 주된 내용은 현재까지 분석된 데이터를 바탕으로 LLM이 실시간으로 "어머니가 평소보다 조금 늦게 일어나셨네요. 따뜻한 안부 전화 한 통 어떨까요?"와 같은 전자기기 사용에 반응하여 관련 자연어 리포트를 타이핑 효과로 생성합니다.   
+This replaces the old `평소 / 지연` scenario toggle.
 
+## 3. Privacy-Safe Information Design
 
+Raw appliance data is hidden by default.
 
+Allowed default language:
 
-## 3. 기술 스택 및 구현 방식
+- 생활 리듬
+- 개인 기준선
+- 아침 활동 시작
+- 식사 관련 생활 신호
+- 확인 필요
 
-프롬프트에 포함하면 좋을 구체적인 가이드입니다.
+Disallowed in default reports and panels:
 
-Frontend: React 기반의 Next.js를 사용하여 빠른 전환과 반응형 디자인을 확보하세요. (사용자의 기존 숙련도 활용)
+- Specific appliance names
+- Wattage
+- Duration
+- Waveform
+- Raw event logs
 
-애니메이션: 가전제품 클릭 시 전력 파형이 움직이는 효과는 Framer Motion이나 Lottie 파일을 활용하면 전문적으로 보입니다.
+The only exception is the educational privacy explainer. It requires explicit confirmation and shows only the actual demo inputs the user created.
 
-데이터 흐름 시뮬레이션: 실제 백엔드 없이도 JSON 형태의 '루틴 데이터 세트'를 미리 정의해두고, 클릭 조합에 따라 결과가 달라지도록 하는 로직을 프롬프트에 포함하세요.   
+## 4. Guardian Phone Roles
+
+The phone asks for role on first entry:
+
+- `가족 보호자`: warmer copy, `전화하기`, `가족 메모`
+- `사회복지사`: operational copy, `전화 확인`, `케이스 메모`, `방문 우선순위`
+
+Role switching remaps copy and actions without recalculating the day or exposing raw data.
+
+## 5. Future AI Boundary
+
+The MVP remains rule-based. Future AI integration should use `POST /api/report` with privacy-safe input only:
+
+- living rhythm state
+- baseline comparison
+- role
+- severity
+- reason summary
+- recommended action
+- privacy policy marker
+
+The API rejects raw fields, including nested `events`, `appliance`, `applianceLabel`, `powerDelta`, `duration`, `waveform`, `time`, and `baselineTime`.
