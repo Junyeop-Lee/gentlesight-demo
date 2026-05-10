@@ -810,7 +810,7 @@ h1 {
 .phoneFrame {
   position: relative;
   max-width: 390px;
-  min-height: 680px;
+  height: 680px;
   margin: 0 auto;
   padding: 18px;
   overflow: hidden;
@@ -822,6 +822,20 @@ h1 {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.6),
     0 24px 60px rgba(23, 33, 29, 0.18);
+}
+
+.phoneContent {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  height: calc(100% - 46px);
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.phoneContent::-webkit-scrollbar {
+  display: none;
 }
 
 .phoneTopBar {
@@ -867,7 +881,7 @@ h1 {
   grid-template-columns: 28px minmax(0, 1fr) 8px;
   gap: 10px;
   align-items: start;
-  min-height: 174px;
+  height: 174px;
   margin: 22px 0 16px;
   padding: 18px;
   border-radius: 20px 20px 20px 6px;
@@ -881,8 +895,10 @@ h1 {
 }
 
 .reportBubble p {
-  min-height: 112px;
+  max-height: 118px;
+  min-height: 0;
   margin: 0;
+  overflow: hidden;
   line-height: 1.65;
 }
 
@@ -961,7 +977,7 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: auto;
   border-radius: 999px;
   background: var(--ink);
   color: #fff;
@@ -1147,7 +1163,8 @@ h1 {
   }
 
   .phoneFrame {
-    min-height: 620px;
+    height: 620px;
+    min-height: 0;
     padding: 16px;
     border-width: 8px;
     border-radius: 28px;
@@ -1155,7 +1172,7 @@ h1 {
 
   .reportBubble {
     grid-template-columns: 24px minmax(0, 1fr) 6px;
-    min-height: 188px;
+    height: 188px;
     padding: 16px;
   }
 }
@@ -1337,7 +1354,8 @@ h1 {
 
 .phoneOverlay .phoneFrame {
   width: clamp(248px, 22vw, 318px);
-  min-height: 442px;
+  height: 520px;
+  min-height: 0;
   padding: 14px;
   border-width: 8px;
   border-radius: 30px;
@@ -1359,7 +1377,7 @@ h1 {
 }
 
 .phoneOverlay .reportBubble {
-  min-height: 108px;
+  height: 112px;
   margin: 14px 0 10px;
   padding: 13px;
   grid-template-columns: 22px minmax(0, 1fr) 6px;
@@ -1368,7 +1386,8 @@ h1 {
 }
 
 .phoneOverlay .reportBubble p {
-  min-height: 68px;
+  max-height: 72px;
+  min-height: 0;
   line-height: 1.55;
 }
 
@@ -1382,13 +1401,13 @@ h1 {
 }
 
 .phoneOverlay .privacyFeed {
-  min-height: 74px;
+  min-height: 66px;
   padding: 10px;
 }
 
 .phoneOverlay .callButton {
   min-height: 40px;
-  margin-top: 12px;
+  margin-top: auto;
 }
 
 .phoneOverlay .phoneHomeIndicator {
@@ -1637,18 +1656,20 @@ h1 {
 
   .phoneOverlay .phoneFrame {
     width: 274px;
-    min-height: 422px;
+    height: 500px;
+    min-height: 0;
     margin: 0 0 0 auto;
     padding: 12px;
   }
 
   .phoneOverlay .reportBubble {
-    min-height: 98px;
+    height: 98px;
     font-size: 0.76rem;
   }
 
   .phoneOverlay .reportBubble p {
-    min-height: 60px;
+    max-height: 60px;
+    min-height: 0;
   }
 
   .bottomAppLayout {
@@ -1702,6 +1723,329 @@ h1 {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+.livingPanel {
+  padding: 20px;
+  border: 1px solid rgba(220, 227, 220, 0.9);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.livingPanelGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.livingStateCard,
+.baselineSummary,
+.livingReason,
+.caseSummary,
+.checkReasonPopover,
+.privacyConfirm {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcf9;
+}
+
+.livingStateCard {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+}
+
+.livingStateCard svg,
+.livingReason svg {
+  color: var(--teal);
+}
+
+.livingStateCard span,
+.baselineSummary span,
+.caseSummary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.livingStateCard strong,
+.baselineSummary strong,
+.caseSummary strong {
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.livingStateCard p,
+.baselineSummary p,
+.livingReason p,
+.caseSummary p,
+.checkReasonPopover p,
+.privacyConfirm p,
+.privacyFootnote {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.livingReason {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.baselineSummary {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.baselineList {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 270px;
+  overflow: auto;
+}
+
+.baselineList div {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) minmax(94px, 0.46fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.baselineList strong,
+.baselineList span {
+  line-height: 1.35;
+  font-weight: 950;
+}
+
+.baselineList span {
+  color: #2f6b5f;
+}
+
+.baselineList p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.roleChangeButton,
+.reasonToggleButton,
+.privacyUnlockButton,
+.privacyConfirm button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 950;
+}
+
+.roleChangeButton {
+  padding: 0 12px;
+  background: #e7f5ec;
+  color: #1e765a;
+}
+
+.roleSelection {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  padding-top: 18px;
+}
+
+.roleSelection h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  line-height: 1.2;
+}
+
+.roleSelection p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.roleSelection button {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 76px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.roleSelection button svg {
+  color: var(--teal);
+}
+
+.roleSelection button span {
+  display: grid;
+  gap: 4px;
+}
+
+.roleSelection small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.checkReasonWrap {
+  display: grid;
+  margin: -8px 0 10px;
+}
+
+.reasonToggleButton {
+  justify-self: start;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(240, 183, 74, 0.42);
+  background: rgba(255, 240, 207, 0.74);
+  color: #745000;
+  font-size: 0.72rem;
+}
+
+.checkReasonPopover {
+  position: absolute;
+  z-index: 6;
+  right: 16px;
+  bottom: 92px;
+  left: 16px;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  box-shadow: 0 18px 48px rgba(23, 33, 29, 0.24);
+}
+
+.checkReasonPopover::after {
+  position: absolute;
+  right: 50px;
+  bottom: -8px;
+  width: 16px;
+  height: 16px;
+  transform: rotate(45deg);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #fbfcf9;
+  content: "";
+}
+
+.reasonCloseButton {
+  justify-self: end;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.caseSummary {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.privacyContent.expanded {
+  grid-template-columns: 78px minmax(0, 1fr);
+}
+
+.privacyPromiseGrid {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.privacyPromiseGrid span {
+  display: grid;
+  min-height: 38px;
+  place-items: center;
+  border-radius: 999px;
+  background: #e7f5ec;
+  color: #1e765a;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.privacyUnlockButton {
+  display: inline-flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.privacyUnlockButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.64;
+}
+
+.privacyConfirm {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 8px;
+  padding: 12px;
+}
+
+.privacyConfirm button {
+  justify-self: start;
+  padding: 0 14px;
+  background: #17352d;
+  color: #fff;
+}
+
+.processingLogList {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 10px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.processingLog.rawDataPanel dl {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.privacyFootnote {
+  grid-column: 1 / -1;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .livingPanelGrid,
+  .baselineList div,
+  .privacyContent.expanded,
+  .privacyPromiseGrid,
+  .processingLog.rawDataPanel dl {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -30,8 +30,12 @@ export type ADLState = {
 
 export type AnomalyResult = {
   severity: "normal" | "watch" | "caution";
+  statusLabel: "안정" | "관찰" | "확인 필요";
   baselineText: string;
   currentText: string;
+  reasonSummary: string;
+  recentSignal: string;
+  lateConfirmed: boolean;
   deltaMinutes: number;
   gaugeValue: number;
 };
@@ -41,7 +45,10 @@ export type GuardianReport = {
   message: string;
   tone: "calm" | "warm" | "alert";
   recommendedAction: string;
+  notificationLabel: string;
 };
+
+export type GuardianRole = "family" | "socialWorker";
 
 export type ApplianceMeta = {
   id: ApplianceId;
@@ -58,6 +65,17 @@ export type InteractionSlot = {
   label: string;
   time: string;
   delayedTime?: string;
+};
+
+export type BaselineWindow = {
+  id: string;
+  label: string;
+  window: string;
+  start: string;
+  observeAfter: string;
+  cautionAfter: string;
+  end: string;
+  summary: string;
 };
 
 export const timelineSlots = [
@@ -94,6 +112,69 @@ export const interactionSlots: InteractionSlot[] = [
   { id: "dinner-prep", phase: "evening", label: "저녁 준비", time: "19:03" },
   { id: "evening-rest", phase: "evening", label: "저녁 휴식", time: "19:28" },
   { id: "night-check", phase: "night", label: "마감", time: "21:46" }
+];
+
+export const personalBaselineWindows: BaselineWindow[] = [
+  {
+    id: "morning-start",
+    label: "아침 활동 시작",
+    window: "07:50-08:20",
+    start: "07:50",
+    observeAfter: "08:40",
+    cautionAfter: "09:00",
+    end: "10:30",
+    summary: "최근 28일 기준 아침 생활 리듬은 보통 08:20 이전에 시작되었습니다."
+  },
+  {
+    id: "breakfast",
+    label: "아침 식사 준비",
+    window: "08:00-08:40",
+    start: "08:00",
+    observeAfter: "08:50",
+    cautionAfter: "09:10",
+    end: "10:40",
+    summary: "식사 준비 관련 생활 신호는 보통 08:40 이전에 확인되었습니다."
+  },
+  {
+    id: "late-morning-rest",
+    label: "오전 휴식",
+    window: "09:00-11:00",
+    start: "09:00",
+    observeAfter: "11:10",
+    cautionAfter: "11:40",
+    end: "11:59",
+    summary: "오전 중에는 가벼운 휴식 또는 실내 활동 흐름이 반복되었습니다."
+  },
+  {
+    id: "noon",
+    label: "점심 전후 활동",
+    window: "11:30-12:30",
+    start: "11:30",
+    observeAfter: "12:45",
+    cautionAfter: "13:10",
+    end: "14:00",
+    summary: "점심 전후에는 짧은 생활 신호가 확인되는 날이 많았습니다."
+  },
+  {
+    id: "evening",
+    label: "저녁 루틴",
+    window: "18:30-20:00",
+    start: "18:30",
+    observeAfter: "20:15",
+    cautionAfter: "20:45",
+    end: "21:20",
+    summary: "저녁 시간대에는 식사와 휴식이 이어지는 패턴이 기준선입니다."
+  },
+  {
+    id: "night",
+    label: "취침 전 안정",
+    window: "21:30-22:30",
+    start: "21:30",
+    observeAfter: "22:30",
+    cautionAfter: "23:00",
+    end: "23:30",
+    summary: "취침 전에는 생활 리듬이 조용해지는 흐름이 기준선입니다."
+  }
 ];
 
 export const applianceCatalog: ApplianceMeta[] = [
