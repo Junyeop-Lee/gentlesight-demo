@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MotionConfig } from "framer-motion";
 import {
+  BarChart3,
   Gauge,
+  HeartPulse,
   Languages,
   Pause,
   Play,
   RotateCcw,
+  ShieldCheck,
   Smartphone,
   X
 } from "lucide-react";
@@ -158,6 +161,12 @@ export function NilmGuardianDemo() {
     setMobileMode("interaction");
   }, []);
 
+  const handleMobileModeSelect = useCallback((mode: MobileMode) => {
+    setMobileMode(mode);
+    setDetailPanel(null);
+    setIsPhoneOpen(false);
+  }, []);
+
   return (
     <main
       className={`appShell ${
@@ -293,6 +302,45 @@ export function NilmGuardianDemo() {
               }
             />
           </div>
+
+          <nav className="mobileActionDock" aria-label={t.actionBarLabel}>
+            <button
+              className={mobileMode === "guardian" ? "selected" : ""}
+              type="button"
+              aria-pressed={mobileMode === "guardian"}
+              onClick={() => handleMobileModeSelect("guardian")}
+            >
+              <Smartphone aria-hidden="true" size={18} />
+              <span>Guardian</span>
+            </button>
+            <button
+              className={mobileMode === "status" ? "selected" : ""}
+              type="button"
+              aria-pressed={mobileMode === "status"}
+              onClick={() => handleMobileModeSelect("status")}
+            >
+              <HeartPulse aria-hidden="true" size={18} />
+              <span>{t.statusView}</span>
+            </button>
+            <button
+              className={mobileMode === "comparison" ? "selected" : ""}
+              type="button"
+              aria-pressed={mobileMode === "comparison"}
+              onClick={() => handleMobileModeSelect("comparison")}
+            >
+              <BarChart3 aria-hidden="true" size={18} />
+              <span>{t.comparison}</span>
+            </button>
+            <button
+              className={mobileMode === "privacy" ? "selected" : ""}
+              type="button"
+              aria-pressed={mobileMode === "privacy"}
+              onClick={() => handleMobileModeSelect("privacy")}
+            >
+              <ShieldCheck aria-hidden="true" size={18} />
+              <span>{t.privacySummary}</span>
+            </button>
+          </nav>
 
           {isPhoneOpen ? (
             <div className="phoneOverlay" id="guardian-phone-panel">
