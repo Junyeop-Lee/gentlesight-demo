@@ -2146,6 +2146,250 @@ h1 {
     overflow: auto;
     border-radius: 18px;
   }
+
+  .mobileGuardianView {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    gap: 12px;
+    min-height: 0;
+  }
+
+  .mobileGuardianView.roleSetup {
+    place-items: center;
+  }
+
+  .mobileRoleCard,
+  .mobileGuardianReportPane,
+  .mobileGuardianInsightPane {
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 14px 44px rgba(23, 33, 29, 0.08);
+  }
+
+  .mobileRoleCard {
+    display: grid;
+    width: min(100%, 620px);
+    gap: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .mobileRoleCard svg {
+    justify-self: center;
+    color: var(--teal);
+  }
+
+  .mobileRoleCard h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.15rem;
+  }
+
+  .mobileRoleCard p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .mobileRoleGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .mobileRoleGrid button {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 82px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #f5faf6;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .mobileRoleGrid button:hover,
+  .mobileRoleGrid button:focus-visible {
+    border-color: rgba(47, 157, 132, 0.45);
+    background: #ecf7f1;
+  }
+
+  .mobileRoleGrid span {
+    display: grid;
+    gap: 4px;
+  }
+
+  .mobileRoleGrid strong {
+    font-size: 0.86rem;
+  }
+
+  .mobileRoleGrid small {
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .mobileGuardianReportPane {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .mobileGuardianHeader,
+  .mobileGuardianToolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobileGuardianHeader h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.3rem;
+    line-height: 1.15;
+  }
+
+  .mobileReportBubble {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 8px;
+    gap: 10px;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+    border-radius: 18px 18px 18px 8px;
+    background: #173f49;
+    color: #e9fbfb;
+  }
+
+  .mobileReportBubble p {
+    margin: 0;
+    font-size: clamp(0.78rem, 1.6vw, 1rem);
+    font-weight: 800;
+    line-height: 1.65;
+  }
+
+  .mobileCallButton {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 999px;
+    background: #17352d;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 950;
+  }
+
+  .mobileGuardianInsightPane {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    overflow: auto;
+    padding: 12px;
+  }
+
+  .mobileGuardianToolbar span {
+    color: var(--ink);
+    font-size: 0.78rem;
+    font-weight: 950;
+  }
+
+  .mobileGuardianToolbar button,
+  .mobileReasonSheet button {
+    min-height: 28px;
+    border: 0;
+    border-radius: 999px;
+    background: #eef5f0;
+    color: #365149;
+    cursor: pointer;
+    font-size: 0.66rem;
+    font-weight: 950;
+  }
+
+  .mobileInsightGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobileInsightCard,
+  .mobileCaseSummary,
+  .mobileReasonSheet {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #f8fbf6;
+    padding: 10px;
+  }
+
+  .mobileInsightCard {
+    display: grid;
+    gap: 5px;
+  }
+
+  .mobileInsightCard.privacy {
+    grid-column: 1 / -1;
+  }
+
+  .mobileInsightCard span,
+  .mobileCaseSummary span {
+    color: var(--muted);
+    font-size: 0.66rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .mobileInsightCard strong,
+  .mobileCaseSummary strong {
+    color: var(--ink);
+    font-size: 0.92rem;
+  }
+
+  .mobileInsightCard p,
+  .mobileCaseSummary p,
+  .mobileReasonSheet p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1.38;
+  }
+
+  .mobileCaseSummary {
+    display: grid;
+    gap: 5px;
+  }
+
+  .mobileReasonSheet {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    z-index: 2;
+    display: grid;
+    gap: 7px;
+    box-shadow: 0 18px 50px rgba(23, 33, 29, 0.18);
+  }
+
+  .mobileReasonSheet button {
+    justify-self: end;
+    padding: 0 10px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

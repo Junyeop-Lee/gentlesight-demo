@@ -47,6 +47,7 @@ import {
   BaselineComparisonPanel,
   StatusPanel
 } from "@/components/LivingRhythmPanels";
+import { MobileGuardianDashboard } from "@/components/MobileGuardianDashboard";
 import {
   MobileModeShell,
   type MobileInfoMode
@@ -443,7 +444,7 @@ export function NilmGuardianDemo() {
               onModeChange={handleMobileModeSelect}
             >
               {mobileInfoMode === "guardian" ? (
-                <GuardianPhone
+                <MobileGuardianDashboard
                   report={guardianReport}
                   adlState={adlState}
                   anomaly={anomaly}
