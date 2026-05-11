@@ -8,13 +8,17 @@ import {
 
 type ApplianceNodeProps = {
   appliance: ApplianceMeta;
+  ariaLabel: string;
   disabled: boolean;
+  label: string;
   onClick: (applianceId: ApplianceId) => void;
 };
 
 export function ApplianceNode({
   appliance,
+  ariaLabel,
   disabled,
+  label,
   onClick
 }: ApplianceNodeProps) {
   return (
@@ -26,7 +30,7 @@ export function ApplianceNode({
         "--appliance-color": "#2f9d84"
       } as CSSProperties}
       type="button"
-      aria-label={`${appliance.label} 상호작용 입력`}
+      aria-label={ariaLabel}
       disabled={disabled}
       onClick={() => onClick(appliance.id)}
       whileHover={disabled ? undefined : { y: -4, scale: 1.03 }}
@@ -36,7 +40,7 @@ export function ApplianceNode({
       <span className="applianceIcon">
         <Activity aria-hidden="true" size={22} strokeWidth={2.2} />
       </span>
-      <span className="applianceLabel">{appliance.label}</span>
+      <span className="applianceLabel">{label}</span>
     </motion.button>
   );
 }

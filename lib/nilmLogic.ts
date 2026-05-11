@@ -15,6 +15,7 @@ import {
   getRoutinePhaseForMinutes,
   parseClockToMinutes
 } from "@/lib/simulationClock";
+import { localizeAdlLabel, type Language } from "@/lib/i18n";
 
 const applianceLabels = new Map(
   applianceCatalog.map((appliance) => [appliance.id, appliance.label])
@@ -231,8 +232,13 @@ export function generateGuardianReport(
   adlState: ADLState,
   anomaly: AnomalyResult,
   latestEvent?: ApplianceEvent,
-  role: GuardianRole = "family"
+  role: GuardianRole = "family",
+  language: Language = "ko"
 ): GuardianReport {
+  if (language === "en") {
+    return generateEnglishGuardianReport(adlState, anomaly, latestEvent, role);
+  }
+
   if (anomaly.severity === "caution") {
     if (role === "socialWorker") {
       return {
@@ -328,6 +334,115 @@ export function generateGuardianReport(
           : "가족 메모"
         : "상태 보기",
     notificationLabel: anomaly.severity === "watch" ? "관찰" : "안정"
+  };
+}
+
+function generateEnglishGuardianReport(
+  adlState: ADLState,
+  anomaly: AnomalyResult,
+  latestEvent: ApplianceEvent | undefined,
+  role: GuardianRole
+): GuardianReport {
+  if (anomaly.severity === "caution") {
+    if (role === "socialWorker") {
+      return {
+        title: "Morning routine needs review",
+        message:
+          "The morning living rhythm is delayed against the personal baseline. A phone check or visit-priority review is recommended.",
+        tone: "alert",
+        recommendedAction: "Phone check",
+        notificationLabel: "Case check recommended"
+      };
+    }
+
+    return {
+      title: "Morning rhythm needs check",
+      message:
+        "Today's morning rhythm appears to have started later than usual. A light check-in may be helpful.",
+      tone: "alert",
+      recommendedAction: "Call",
+      notificationLabel: "Check-in recommended"
+    };
+  }
+
+  if (anomaly.lateConfirmed) {
+    if (role === "socialWorker") {
+      return {
+        title: "Morning rhythm confirmed late",
+        message:
+          "The morning rhythm was confirmed after a delay. It is now in watch state, and today's change can be added to the case note.",
+        tone: "warm",
+        recommendedAction: "Case note",
+        notificationLabel: "Watch record"
+      };
+    }
+
+    return {
+      title: "Morning rhythm confirmed late",
+      message:
+        "The morning rhythm was confirmed a little late. It is now in watch state, and GentleSight will keep today's change in the record.",
+      tone: "warm",
+      recommendedAction: "Family note",
+      notificationLabel: "Watch record"
+    };
+  }
+
+  if (!latestEvent) {
+    return {
+      title: role === "socialWorker" ? "Case status pending" : "GentleSight ready",
+      message:
+        "When a living-rhythm change is summarized, a guardian report will be generated without raw data.",
+      tone: "calm",
+      recommendedAction: role === "socialWorker" ? "View case" : "View status",
+      notificationLabel: "Stable"
+    };
+  }
+
+  if (adlState.icon === "meal") {
+    return {
+      title:
+        role === "socialWorker"
+          ? "Meal-related rhythm confirmed"
+          : "Meal preparation confirmed",
+      message:
+        role === "socialWorker"
+          ? "Meal-related living rhythm was confirmed within the personal baseline. No additional action is needed."
+          : "A meal-related living rhythm was confirmed. It is continuing within the usual daily flow.",
+      tone: "calm",
+      recommendedAction: role === "socialWorker" ? "Case note" : "Family note",
+      notificationLabel: "Stable"
+    };
+  }
+
+  if (adlState.icon === "rest") {
+    return {
+      title: role === "socialWorker" ? "Rest rhythm confirmed" : "Rest routine confirmed",
+      message:
+        role === "socialWorker"
+          ? "A rest-related living rhythm was summarized. There is no important change against the current baseline."
+          : "This is summarized as a rest-related living rhythm. No unusual signal is visible without showing device-level details.",
+      tone: "calm",
+      recommendedAction:
+        role === "socialWorker" ? "Visit priority" : "View status",
+      notificationLabel: "Stable"
+    };
+  }
+
+  return {
+    title:
+      role === "socialWorker" ? "Living-rhythm update" : "Routine pattern update",
+    message:
+      role === "socialWorker"
+        ? `Anonymous summary signals classify the current state as ${localizeAdlLabel(adlState, "en")}.`
+        : `GentleSight is reviewing the current state as ${localizeAdlLabel(adlState, "en")} using anonymous summary signals.`,
+    tone: anomaly.severity === "watch" ? "alert" : "calm",
+    recommendedAction:
+      anomaly.severity === "watch"
+        ? role === "socialWorker"
+          ? "Case note"
+          : "Family note"
+        : "View status",
+    notificationLabel: anomaly.severity === "watch" ? "Watch" : "Stable"
   };
 }
 
