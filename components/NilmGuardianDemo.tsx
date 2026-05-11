@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MotionConfig } from "framer-motion";
 import {
   BarChart3,
@@ -47,10 +47,14 @@ import {
   BaselineComparisonPanel,
   StatusPanel
 } from "@/components/LivingRhythmPanels";
+import {
+  MobileModeShell,
+  type MobileInfoMode
+} from "@/components/MobileModeShell";
 import { PrivacyPanel } from "@/components/PrivacyPanel";
 
 type DetailPanel = ActionPanel | null;
-type MobileMode = "interaction" | "guardian" | ActionPanel;
+type MobileMode = "interaction" | MobileInfoMode;
 
 const MOBILE_APP_QUERY =
   "(max-width: 1024px) and (orientation: landscape)";
@@ -68,6 +72,8 @@ export function NilmGuardianDemo() {
   const [isFastPreview, setIsFastPreview] = useState(false);
   const [language, setLanguage] = useState<Language>("ko");
   const isMobileAppViewport = useMediaQuery(MOBILE_APP_QUERY);
+  const mobileHistoryEntryRef = useRef(false);
+  const previousMobileModeRef = useRef<MobileMode>("interaction");
 
   const currentTime = formatClock(currentMinutes);
   const localizedTime = formatLocalizedClock(currentMinutes, language);
@@ -127,6 +133,44 @@ export function NilmGuardianDemo() {
     }
   }, [isMobileAppViewport, mobileMode]);
 
+  useEffect(() => {
+    if (!isMobileAppViewport) {
+      mobileHistoryEntryRef.current = false;
+      previousMobileModeRef.current = mobileMode;
+      return;
+    }
+
+    if (
+      previousMobileModeRef.current === "interaction" &&
+      mobileMode !== "interaction" &&
+      !mobileHistoryEntryRef.current
+    ) {
+      window.history.pushState(
+        { gentleSightMobileMode: mobileMode },
+        "",
+        window.location.href
+      );
+      mobileHistoryEntryRef.current = true;
+    }
+
+    if (mobileMode === "interaction") {
+      mobileHistoryEntryRef.current = false;
+    }
+
+    previousMobileModeRef.current = mobileMode;
+  }, [isMobileAppViewport, mobileMode]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isMobileAppViewport) {
+        setMobileMode("interaction");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isMobileAppViewport]);
+
   const handleApplianceClick = useCallback(
     (applianceId: ApplianceId) => {
       setEvents((currentEvents) => {
@@ -161,11 +205,22 @@ export function NilmGuardianDemo() {
     setMobileMode("interaction");
   }, []);
 
-  const handleMobileModeSelect = useCallback((mode: MobileMode) => {
+  const handleMobileModeSelect = useCallback((mode: MobileInfoMode) => {
     setMobileMode(mode);
     setDetailPanel(null);
     setIsPhoneOpen(false);
   }, []);
+
+  const handleMobileModeBack = useCallback(() => {
+    setMobileMode("interaction");
+
+    if (mobileHistoryEntryRef.current) {
+      mobileHistoryEntryRef.current = false;
+      window.history.back();
+    }
+  }, []);
+
+  const mobileInfoMode = mobileMode === "interaction" ? null : mobileMode;
 
   return (
     <main
@@ -379,6 +434,43 @@ export function NilmGuardianDemo() {
               </>
             )}
           </button>
+
+          {isMobileAppViewport && mobileInfoMode ? (
+            <MobileModeShell
+              activeMode={mobileInfoMode}
+              language={language}
+              onBack={handleMobileModeBack}
+              onModeChange={handleMobileModeSelect}
+            >
+              {mobileInfoMode === "guardian" ? (
+                <GuardianPhone
+                  report={guardianReport}
+                  adlState={adlState}
+                  anomaly={anomaly}
+                  hasSignal={Boolean(latestEvent)}
+                  language={language}
+                  role={guardianRole}
+                  onRoleChange={setGuardianRole}
+                />
+              ) : mobileInfoMode === "privacy" ? (
+                <PrivacyPanel events={events} language={language} />
+              ) : mobileInfoMode === "comparison" ? (
+                <BaselineComparisonPanel
+                  anomaly={anomaly}
+                  currentTimeLabel={localizedTime}
+                  language={language}
+                />
+              ) : (
+                <StatusPanel
+                  adlState={adlState}
+                  anomaly={anomaly}
+                  hasSignal={Boolean(latestEvent)}
+                  currentTimeLabel={localizedTime}
+                  language={language}
+                />
+              )}
+            </MobileModeShell>
+          ) : null}
         </HomeSimulator>
       </MotionConfig>
     </main>

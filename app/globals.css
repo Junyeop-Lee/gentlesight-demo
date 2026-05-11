@@ -1302,6 +1302,10 @@ h1 {
   display: none;
 }
 
+.mobileModeOverlay {
+  display: none;
+}
+
 .compactBrand {
   width: min(340px, 45vw);
   padding: 14px 16px;
@@ -2012,6 +2016,135 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .mobileAppShell .mobileModeOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: flex;
+    min-height: 100dvh;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    background:
+      linear-gradient(135deg, rgba(236, 245, 239, 0.96), rgba(220, 236, 234, 0.96)),
+      #edf5f0;
+  }
+
+  .mobileModeSurface {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 22px;
+    background: #f8fbf6;
+    box-shadow: 0 24px 70px rgba(18, 30, 25, 0.22);
+  }
+
+  .mobileModeHeader {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.9fr) auto minmax(320px, 1.2fr);
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.88);
+  }
+
+  .mobileModeHeader h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 0.92rem;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .mobileBackButton,
+  .mobileModeTabs button {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 950;
+  }
+
+  .mobileBackButton {
+    justify-self: start;
+    padding: 0 12px;
+    background: #17352d;
+    color: #fff;
+    font-size: 0.72rem;
+  }
+
+  .mobileModeTabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    justify-self: end;
+    width: 100%;
+    max-width: 430px;
+  }
+
+  .mobileModeTabs button {
+    min-width: 0;
+    padding: 0 9px;
+    background: #eef5f0;
+    color: #42544d;
+    font-size: 0.68rem;
+  }
+
+  .mobileModeTabs button.selected {
+    background: #17352d;
+    color: #fff;
+  }
+
+  .mobileModeTabs span,
+  .mobileBackButton span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileModeContent {
+    display: grid;
+    min-height: 0;
+    overflow: auto;
+    padding: 12px;
+  }
+
+  .mobileModeContent .phonePanel {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mobileModeContent .phoneFrame {
+    width: min(100%, 340px);
+    aspect-ratio: var(--phone-aspect);
+    height: auto;
+    min-height: 0;
+    opacity: 1;
+  }
+
+  .mobileModeContent .livingPanel,
+  .mobileModeContent .wavePanel {
+    min-height: 0;
+    overflow: auto;
+    border-radius: 18px;
   }
 }
 
