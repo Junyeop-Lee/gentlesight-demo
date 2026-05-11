@@ -2390,6 +2390,157 @@ h1 {
     justify-self: end;
     padding: 0 10px;
   }
+
+  .mobileModeContent .livingPanel,
+  .mobileModeContent .wavePanel {
+    display: grid;
+    align-content: stretch;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .mobileModeContent .sectionHeader.compact {
+    align-items: center;
+  }
+
+  .mobileModeContent .sectionHeader h2 {
+    font-size: 1.15rem;
+  }
+
+  .mobileModeContent .livingPanelGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 0;
+  }
+
+  .mobileModeContent .livingStateCard {
+    gap: 6px;
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .mobileModeContent .livingStateCard strong,
+  .mobileModeContent .baselineSummary strong {
+    font-size: 0.98rem;
+  }
+
+  .mobileModeContent .livingStateCard p,
+  .mobileModeContent .baselineSummary p,
+  .mobileModeContent .livingReason p,
+  .mobileModeContent .baselineList p,
+  .mobileModeContent .privacyCopy p,
+  .mobileModeContent .privacyConfirm p,
+  .mobileModeContent .privacyFootnote {
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+
+  .mobileModeContent .livingReason {
+    margin-top: 0;
+    padding: 11px;
+  }
+
+  .mobileModeContent .baselineSummary {
+    margin-top: 0;
+    padding: 12px;
+  }
+
+  .mobileModeContent .baselineList {
+    display: grid;
+    gap: 8px;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+    margin-top: 0;
+    padding-right: 2px;
+  }
+
+  .mobileModeContent .baselineList div {
+    grid-template-columns:
+      minmax(112px, 0.58fr)
+      minmax(82px, 0.36fr)
+      minmax(0, 1fr);
+    padding: 10px;
+  }
+
+  .mobileModeContent .wavePanel {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .mobileModeContent .waveBody {
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .mobileModeContent .privacyContent.expanded {
+    grid-template-columns: 54px minmax(0, 1fr);
+    align-content: start;
+    align-items: start;
+    min-height: 0;
+    gap: 12px;
+  }
+
+  .mobileModeContent .privacyIcon {
+    width: 54px;
+    height: 54px;
+  }
+
+  .mobileModeContent .privacyCopy {
+    gap: 6px;
+  }
+
+  .mobileModeContent .privacyCopy strong {
+    font-size: 1rem;
+  }
+
+  .mobileModeContent .privacyPromiseGrid {
+    gap: 7px;
+  }
+
+  .mobileModeContent .privacyPromiseGrid span {
+    min-height: 34px;
+    font-size: 0.7rem;
+  }
+
+  .mobileModeContent .privacyUnlockButton {
+    min-height: 36px;
+  }
+
+  .mobileModeContent .privacyConfirm {
+    padding: 10px;
+  }
+
+  .mobileModeContent .processingSteps {
+    padding: 8px;
+    font-size: 0.7rem;
+  }
+
+  .mobileModeContent .processingLogList {
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+  }
+
+  .mobileModeContent .processingLog.rawDataPanel dl {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .mobileModeContent .rawDataPanel dl div {
+    padding: 8px;
+  }
+
+  .mobileModeContent .rawDataPanel dt {
+    font-size: 0.64rem;
+  }
+
+  .mobileModeContent .rawDataPanel dd {
+    font-size: 0.72rem;
+  }
+
+  .mobileModeContent .rawWaveform {
+    height: 46px;
+    padding: 8px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
