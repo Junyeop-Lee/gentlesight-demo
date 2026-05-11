@@ -5,6 +5,11 @@ import {
   type ApplianceId,
   type ApplianceMeta
 } from "@/data/routineDataset";
+import {
+  getApplianceInputLabel,
+  getApplianceLabel,
+  type Language
+} from "@/lib/i18n";
 import { ApplianceNode } from "@/components/ApplianceNode";
 
 type HomeSimulatorProps = {
@@ -12,6 +17,7 @@ type HomeSimulatorProps = {
   onApplianceClick: (applianceId: ApplianceId) => void;
   disabled: boolean;
   lightingLevel: number;
+  language: Language;
   children?: ReactNode;
 };
 
@@ -20,6 +26,7 @@ export function HomeSimulator({
   onApplianceClick,
   disabled,
   lightingLevel,
+  language,
   children
 }: HomeSimulatorProps) {
   return (
@@ -53,7 +60,9 @@ export function HomeSimulator({
           <ApplianceNode
             key={appliance.id}
             appliance={appliance}
+            ariaLabel={getApplianceInputLabel(appliance.id, language)}
             disabled={disabled}
+            label={getApplianceLabel(appliance.id, language)}
             onClick={onApplianceClick}
           />
         ))}

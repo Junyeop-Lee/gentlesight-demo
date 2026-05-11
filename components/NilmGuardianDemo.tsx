@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { MotionConfig } from "framer-motion";
 import {
   Gauge,
+  Languages,
   Pause,
   Play,
   RotateCcw,
@@ -29,9 +30,10 @@ import {
   SIMULATION_END_MINUTES,
   SIMULATION_START_MINUTES,
   formatClock,
-  formatKoreanClock,
+  formatLocalizedClock,
   getRoutinePhaseForMinutes
 } from "@/lib/simulationClock";
+import { copy, statusLabels, type Language } from "@/lib/i18n";
 import {
   GlobalActionBar,
   type ActionPanel
@@ -56,8 +58,11 @@ export function NilmGuardianDemo() {
   );
   const [isClockRunning, setIsClockRunning] = useState(true);
   const [isFastPreview, setIsFastPreview] = useState(false);
+  const [language, setLanguage] = useState<Language>("ko");
 
   const currentTime = formatClock(currentMinutes);
+  const localizedTime = formatLocalizedClock(currentMinutes, language);
+  const t = copy[language];
   const clockSpeed = isFastPreview
     ? FAST_SIMULATION_MINUTES_PER_SECOND
     : DEFAULT_SIMULATION_MINUTES_PER_SECOND;
@@ -77,9 +82,10 @@ export function NilmGuardianDemo() {
         adlState,
         anomaly,
         latestEvent,
-        guardianRole ?? "family"
+        guardianRole ?? "family",
+        language
       ),
-    [adlState, anomaly, latestEvent, guardianRole]
+    [adlState, anomaly, latestEvent, guardianRole, language]
   );
   const homeLighting = useMemo(
     () => getHomeLighting(currentMinutes, events),
@@ -148,8 +154,8 @@ export function NilmGuardianDemo() {
             size={48}
             style={{ marginBottom: 16, transform: "rotate(90deg)" }}
           />
-          <h2>가로 화면으로 전환해주세요</h2>
-          <p>이 화면은 가로 모드 및 데스크탑 환경에 최적화된 프로토타입입니다.</p>
+          <h2>{t.landscapeTitle}</h2>
+          <p>{t.landscapeDescription}</p>
         </div>
         
         <HomeSimulator
@@ -157,24 +163,44 @@ export function NilmGuardianDemo() {
           onApplianceClick={handleApplianceClick}
           disabled={events.length >= interactionSlots.length}
           lightingLevel={homeLighting}
+          language={language}
         >
-          <div className="homeChrome" aria-label="홈 시뮬레이션 제어">
+          <div className="homeChrome" aria-label={t.simulationControls}>
             <div className="compactBrand">
-              <p className="eyebrow">Interactive Home</p>
+              <p className="eyebrow">{t.interactiveHome}</p>
               <h1 id="home-title">GentleSight</h1>
             </div>
 
-            <div className="topControls" aria-label="시뮬레이션 제어">
-              <div className="clockControlPanel" aria-label="시간 흐름 제어">
+            <div className="topControls" aria-label={t.simulationControls}>
+              <div className="languageToggle" aria-label={t.languageToggleLabel}>
+                <Languages aria-hidden="true" size={17} />
+                <button
+                  className={language === "ko" ? "selected" : ""}
+                  type="button"
+                  aria-pressed={language === "ko"}
+                  onClick={() => setLanguage("ko")}
+                >
+                  {t.korean}
+                </button>
+                <button
+                  className={language === "en" ? "selected" : ""}
+                  type="button"
+                  aria-pressed={language === "en"}
+                  onClick={() => setLanguage("en")}
+                >
+                  {t.english}
+                </button>
+              </div>
+              <div className="clockControlPanel" aria-label={t.clockControl}>
                 <div className="clockReadout" aria-live="polite">
-                  <span>현재 시간</span>
-                  <strong>{formatKoreanClock(currentMinutes)}</strong>
-                  <small>{isClockRunning ? "자동 흐름" : "일시정지"}</small>
+                  <span>{t.currentTime}</span>
+                  <strong>{localizedTime}</strong>
+                  <small>{isClockRunning ? t.autoFlow : t.paused}</small>
                 </div>
                 <button
                   className="iconButton"
                   type="button"
-                  aria-label={isClockRunning ? "시간 일시정지" : "시간 재생"}
+                  aria-label={isClockRunning ? t.pauseTime : t.playTime}
                   aria-pressed={isClockRunning}
                   onClick={() => setIsClockRunning((running) => !running)}
                 >
@@ -187,7 +213,7 @@ export function NilmGuardianDemo() {
                 <button
                   className={`iconButton ${isFastPreview ? "selected" : ""}`}
                   type="button"
-                  aria-label="빠르게 보기"
+                  aria-label={t.fastPreview}
                   aria-pressed={isFastPreview}
                   onClick={() => setIsFastPreview((fast) => !fast)}
                 >
@@ -196,7 +222,7 @@ export function NilmGuardianDemo() {
                 <button
                   className="iconButton"
                   type="button"
-                  aria-label="시뮬레이션 초기화"
+                  aria-label={t.resetSimulation}
                   onClick={handleReset}
                 >
                   <RotateCcw aria-hidden="true" size={18} />
@@ -206,8 +232,8 @@ export function NilmGuardianDemo() {
           </div>
 
           <div className="demoInputHint" aria-live="polite">
-            <span>생활 신호 시뮬레이션</span>
-            <strong>{anomaly.statusLabel}</strong>
+            <span>{t.livingSignalSimulation}</span>
+            <strong>{statusLabels[language][anomaly.severity]}</strong>
           </div>
 
           {detailPanel ? (
@@ -215,24 +241,26 @@ export function NilmGuardianDemo() {
               <button
                 className="closePanelButton"
                 type="button"
-                aria-label="세부 패널 닫기"
+                aria-label={t.closeDetailPanel}
                 onClick={() => setDetailPanel(null)}
               >
                 <X aria-hidden="true" size={18} />
               </button>
               {detailPanel === "privacy" ? (
-                <PrivacyPanel events={events} />
+                <PrivacyPanel events={events} language={language} />
               ) : detailPanel === "comparison" ? (
                 <BaselineComparisonPanel
                   anomaly={anomaly}
-                  currentTimeLabel={formatKoreanClock(currentMinutes)}
+                  currentTimeLabel={localizedTime}
+                  language={language}
                 />
               ) : (
                 <StatusPanel
                   adlState={adlState}
                   anomaly={anomaly}
                   hasSignal={Boolean(latestEvent)}
-                  currentTimeLabel={formatKoreanClock(currentMinutes)}
+                  currentTimeLabel={localizedTime}
+                  language={language}
                 />
               )}
             </div>
@@ -241,6 +269,7 @@ export function NilmGuardianDemo() {
           <div className="bottomAppLayout">
             <GlobalActionBar
               activePanel={detailPanel}
+              language={language}
               onSelectPanel={(panel) =>
                 setDetailPanel((current) => (current === panel ? null : panel))
               }
@@ -254,6 +283,7 @@ export function NilmGuardianDemo() {
                 adlState={adlState}
                 anomaly={anomaly}
                 hasSignal={Boolean(latestEvent)}
+                language={language}
                 role={guardianRole}
                 onRoleChange={setGuardianRole}
               />
@@ -265,7 +295,7 @@ export function NilmGuardianDemo() {
               anomaly.severity === "caution" ? "needsAttention" : ""
             }`}
             type="button"
-            aria-label="보호자 핸드폰 보기"
+            aria-label={t.guardianPhone}
             aria-controls="guardian-phone-panel"
             aria-expanded={isPhoneOpen}
             onClick={() => setIsPhoneOpen(!isPhoneOpen)}
@@ -291,7 +321,7 @@ export function NilmGuardianDemo() {
 
 function getHomeLighting(currentMinutes: number, events: ApplianceEvent[]) {
   const hasLightInput = events.some((event) => event.appliance === "light");
-  const hour = Math.floor(currentMinutes / 60);
+  const hour = Math.floor((currentMinutes % (24 * 60)) / 60);
 
   if (hasLightInput) {
     return 1.03;

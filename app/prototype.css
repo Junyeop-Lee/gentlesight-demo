@@ -164,6 +164,7 @@ html, body {
 }
 
 .homeChrome .clockControlPanel,
+.homeChrome .languageToggle,
 .homeChrome .segmentedControl {
   border-color: rgba(255, 255, 255, 0.55);
   background: rgba(255, 255, 255, 0.72);
@@ -324,7 +325,7 @@ html, body {
 .phoneOverlay {
   right: 24px;
   bottom: 104px;
-  width: min(360px, calc(100% - 48px));
+  width: min(280px, calc(100% - 48px));
 }
 
 .phoneToggleButton.needsAttention {

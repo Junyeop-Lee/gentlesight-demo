@@ -12,6 +12,7 @@
   --violet: #8c6edb;
   --shadow: 0 24px 70px rgba(25, 37, 31, 0.13);
   --radius: 8px;
+  --phone-aspect: 9 / 19.5;
 }
 
 * {
@@ -144,6 +145,37 @@ h1 {
   background: rgba(255, 255, 255, 0.78);
   box-shadow: 0 10px 30px rgba(23, 33, 29, 0.08);
   backdrop-filter: blur(14px);
+}
+
+.languageToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 54px;
+  padding: 4px 5px 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 30px rgba(23, 33, 29, 0.08);
+  color: var(--muted);
+  backdrop-filter: blur(14px);
+}
+
+.languageToggle button {
+  min-height: 42px;
+  min-width: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.languageToggle button.selected {
+  background: var(--ink);
+  color: #fff;
 }
 
 .clockReadout {
@@ -809,8 +841,12 @@ h1 {
 
 .phoneFrame {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(390px, 100%);
   max-width: 390px;
-  height: 680px;
+  aspect-ratio: var(--phone-aspect);
+  height: auto;
   margin: 0 auto;
   padding: 18px;
   overflow: hidden;
@@ -828,7 +864,8 @@ h1 {
   position: relative;
   display: flex;
   min-height: 0;
-  height: calc(100% - 46px);
+  flex: 1 1 auto;
+  height: auto;
   flex-direction: column;
   overflow-y: auto;
   scrollbar-width: none;
@@ -924,14 +961,14 @@ h1 {
   margin-bottom: 16px;
 }
 
-.phoneMetrics div {
+.phoneMetricCard {
   display: grid;
   gap: 6px;
   min-width: 0;
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.72);
+  background: #fff;
 }
 
 .phoneMetrics strong {
@@ -947,7 +984,7 @@ h1 {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.76);
+  background: #fff;
 }
 
 .privacyFeed svg {
@@ -1099,7 +1136,15 @@ h1 {
     min-width: 0;
   }
 
+  .languageToggle {
+    width: 100%;
+    justify-content: center;
+    border-radius: 18px;
+  }
+
   .clockControlPanel {
+    width: 100%;
+    justify-content: space-between;
     border-radius: 18px;
   }
 
@@ -1163,7 +1208,8 @@ h1 {
   }
 
   .phoneFrame {
-    height: 620px;
+    width: min(360px, 100%);
+    height: auto;
     min-height: 0;
     padding: 16px;
     border-width: 8px;
@@ -1353,65 +1399,143 @@ h1 {
 }
 
 .phoneOverlay .phoneFrame {
-  width: clamp(248px, 22vw, 318px);
-  height: 520px;
+  width: clamp(218px, 17vw, 268px);
+  aspect-ratio: var(--phone-aspect);
+  height: auto;
   min-height: 0;
   padding: 14px;
   border-width: 8px;
   border-radius: 30px;
-  background: linear-gradient(180deg, rgba(249, 251, 247, 0.96), rgba(237, 244, 239, 0.94));
+  background: linear-gradient(180deg, #f9fbf7, #edf4ef);
+  opacity: 1;
 }
 
 .phoneOverlay .phoneTopBar {
-  padding-bottom: 10px;
-}
-
-.phoneOverlay .phoneStatus h2 {
-  font-size: 1.05rem;
-}
-
-.phoneOverlay .statusPill {
-  min-height: 28px;
-  padding: 0 10px;
+  padding: 4px 0 8px;
   font-size: 0.74rem;
 }
 
+.phoneOverlay .roleChangeButton {
+  min-height: 26px;
+  padding: 0 9px;
+  font-size: 0.64rem;
+}
+
+.phoneOverlay .phoneStatus h2 {
+  font-size: 0.92rem;
+}
+
+.phoneOverlay .statusPill {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 0.64rem;
+}
+
 .phoneOverlay .reportBubble {
-  height: 112px;
-  margin: 14px 0 10px;
-  padding: 13px;
-  grid-template-columns: 22px minmax(0, 1fr) 6px;
-  border-radius: 16px 16px 16px 6px;
-  font-size: 0.82rem;
+  height: 92px;
+  margin: 10px 0 8px;
+  padding: 10px;
+  grid-template-columns: 18px minmax(0, 1fr) 5px;
+  gap: 8px;
+  border-radius: 14px 14px 14px 6px;
+  font-size: 0.72rem;
 }
 
 .phoneOverlay .reportBubble p {
-  max-height: 72px;
+  max-height: 58px;
   min-height: 0;
-  line-height: 1.55;
+  line-height: 1.45;
+}
+
+.phoneOverlay .reportBubble svg {
+  width: 17px;
+  height: 17px;
 }
 
 .phoneOverlay .phoneMetrics {
-  gap: 8px;
-  margin-bottom: 10px;
+  grid-template-columns: minmax(0, 1fr) 50px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.phoneOverlay .phoneMetrics div {
-  padding: 10px;
+.phoneOverlay .phoneMetricCard {
+  gap: 4px;
+  padding: 8px;
+  background: #fff;
+}
+
+.phoneOverlay .phoneMetricCard span {
+  font-size: 0.62rem;
+}
+
+.phoneOverlay .phoneMetricCard strong {
+  font-size: 0.86rem;
+}
+
+.phoneOverlay .statusMetric.needsReason {
+  align-content: start;
 }
 
 .phoneOverlay .privacyFeed {
-  min-height: 66px;
-  padding: 10px;
+  min-height: 56px;
+  padding: 8px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  background: #fff;
+}
+
+.phoneOverlay .privacyFeed svg {
+  width: 16px;
+  height: 16px;
+}
+
+.phoneOverlay .privacyFeed strong {
+  font-size: 0.72rem;
+}
+
+.phoneOverlay .privacyFeed span {
+  font-size: 0.62rem;
 }
 
 .phoneOverlay .callButton {
-  min-height: 40px;
+  min-height: 34px;
   margin-top: auto;
+  font-size: 0.74rem;
 }
 
 .phoneOverlay .phoneHomeIndicator {
   display: none;
+}
+
+.phoneOverlay .roleSelection {
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.phoneOverlay .roleSelection h2 {
+  font-size: 0.98rem;
+}
+
+.phoneOverlay .roleSelection p {
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.phoneOverlay .roleSelection button {
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 8px;
+  min-height: 56px;
+  padding: 9px;
+}
+
+.phoneOverlay .roleSelection button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.phoneOverlay .roleSelection small {
+  font-size: 0.64rem;
+  line-height: 1.25;
 }
 
 .bottomAppLayout {
@@ -1655,20 +1779,21 @@ h1 {
   }
 
   .phoneOverlay .phoneFrame {
-    width: 274px;
-    height: 500px;
+    width: 216px;
+    aspect-ratio: var(--phone-aspect);
+    height: auto;
     min-height: 0;
     margin: 0 0 0 auto;
     padding: 12px;
   }
 
   .phoneOverlay .reportBubble {
-    height: 98px;
-    font-size: 0.76rem;
+    height: 88px;
+    font-size: 0.7rem;
   }
 
   .phoneOverlay .reportBubble p {
-    max-height: 60px;
+    max-height: 54px;
     min-height: 0;
   }
 
@@ -1864,7 +1989,9 @@ h1 {
 .roleSelection {
   display: grid;
   gap: 12px;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
   padding-top: 18px;
 }
 
@@ -1909,30 +2036,37 @@ h1 {
   font-weight: 800;
 }
 
-.checkReasonWrap {
-  display: grid;
-  margin: -8px 0 10px;
-}
-
 .reasonToggleButton {
   justify-self: start;
-  min-height: 30px;
-  padding: 0 10px;
+  min-height: 28px;
+  max-width: 100%;
+  padding: 0 9px;
   border: 1px solid rgba(240, 183, 74, 0.42);
   background: rgba(255, 240, 207, 0.74);
   color: #745000;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  line-height: 1.15;
+  white-space: normal;
+}
+
+.phoneOverlay .reasonToggleButton {
+  min-height: 24px;
+  margin-top: 2px;
+  padding: 0 7px;
+  font-size: 0.6rem;
 }
 
 .checkReasonPopover {
   position: absolute;
   z-index: 6;
-  right: 16px;
-  bottom: 92px;
-  left: 16px;
+  right: 10px;
+  bottom: 58px;
+  left: 10px;
   display: grid;
-  gap: 8px;
-  padding: 14px;
+  gap: 7px;
+  max-height: min(64%, 280px);
+  overflow-y: auto;
+  padding: 11px;
   box-shadow: 0 18px 48px rgba(23, 33, 29, 0.24);
 }
 
@@ -2055,7 +2189,7 @@ h1 {
   }
 
   .phoneOverlay {
-    width: min(100% - 24px, 300px);
+    width: min(100% - 24px, 250px);
     bottom: 226px;
   }
 
