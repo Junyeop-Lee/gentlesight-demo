@@ -47,11 +47,16 @@ import {
 import { PrivacyPanel } from "@/components/PrivacyPanel";
 
 type DetailPanel = ActionPanel | null;
+type MobileMode = "interaction" | "guardian" | ActionPanel;
+
+const MOBILE_APP_QUERY =
+  "(max-width: 1024px) and (orientation: landscape)";
 
 export function NilmGuardianDemo() {
   const [events, setEvents] = useState<ApplianceEvent[]>([]);
   const [detailPanel, setDetailPanel] = useState<DetailPanel>(null);
   const [isPhoneOpen, setIsPhoneOpen] = useState(false);
+  const [mobileMode, setMobileMode] = useState<MobileMode>("interaction");
   const [guardianRole, setGuardianRole] = useState<GuardianRole | null>(null);
   const [currentMinutes, setCurrentMinutes] = useState(
     SIMULATION_START_MINUTES
@@ -59,6 +64,7 @@ export function NilmGuardianDemo() {
   const [isClockRunning, setIsClockRunning] = useState(true);
   const [isFastPreview, setIsFastPreview] = useState(false);
   const [language, setLanguage] = useState<Language>("ko");
+  const isMobileAppViewport = useMediaQuery(MOBILE_APP_QUERY);
 
   const currentTime = formatClock(currentMinutes);
   const localizedTime = formatLocalizedClock(currentMinutes, language);
@@ -112,6 +118,12 @@ export function NilmGuardianDemo() {
     }
   }, [currentMinutes, isClockRunning]);
 
+  useEffect(() => {
+    if (!isMobileAppViewport && mobileMode !== "interaction") {
+      setMobileMode("interaction");
+    }
+  }, [isMobileAppViewport, mobileMode]);
+
   const handleApplianceClick = useCallback(
     (applianceId: ApplianceId) => {
       setEvents((currentEvents) => {
@@ -143,10 +155,16 @@ export function NilmGuardianDemo() {
     setCurrentMinutes(SIMULATION_START_MINUTES);
     setIsClockRunning(true);
     setDetailPanel(null);
+    setMobileMode("interaction");
   }, []);
 
   return (
-    <main className="appShell" id="main-content">
+    <main
+      className={`appShell ${
+        isMobileAppViewport ? "mobileAppShell" : ""
+      } mobileMode-${mobileMode}`}
+      id="main-content"
+    >
       <MotionConfig reducedMotion="user">
         <div className="landscapePrompt">
           <Smartphone
@@ -317,6 +335,22 @@ export function NilmGuardianDemo() {
       </MotionConfig>
     </main>
   );
+}
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+
+    const handleChange = () => setMatches(mediaQuery.matches);
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
 }
 
 function getHomeLighting(currentMinutes: number, events: ApplianceEvent[]) {
