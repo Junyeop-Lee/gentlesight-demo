@@ -918,7 +918,7 @@ h1 {
   grid-template-columns: 28px minmax(0, 1fr) 8px;
   gap: 10px;
   align-items: start;
-  height: 174px;
+  min-height: 132px;
   margin: 22px 0 16px;
   padding: 18px;
   border-radius: 20px 20px 20px 6px;
@@ -932,10 +932,9 @@ h1 {
 }
 
 .reportBubble p {
-  max-height: 118px;
   min-height: 0;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
   line-height: 1.65;
 }
 
@@ -1399,7 +1398,7 @@ h1 {
 }
 
 .phoneOverlay .phoneFrame {
-  width: clamp(218px, 17vw, 268px);
+  width: clamp(238px, 18vw, 286px);
   aspect-ratio: var(--phone-aspect);
   height: auto;
   min-height: 0;
@@ -1422,7 +1421,8 @@ h1 {
 }
 
 .phoneOverlay .phoneStatus h2 {
-  font-size: 0.92rem;
+  font-size: 0.86rem;
+  line-height: 1.18;
 }
 
 .phoneOverlay .statusPill {
@@ -1432,19 +1432,19 @@ h1 {
 }
 
 .phoneOverlay .reportBubble {
-  height: 92px;
-  margin: 10px 0 8px;
-  padding: 10px;
+  min-height: 0;
+  margin: 8px 0 8px;
+  padding: 10px 9px;
   grid-template-columns: 18px minmax(0, 1fr) 5px;
   gap: 8px;
   border-radius: 14px 14px 14px 6px;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
 .phoneOverlay .reportBubble p {
-  max-height: 58px;
   min-height: 0;
-  line-height: 1.45;
+  overflow: visible;
+  line-height: 1.42;
 }
 
 .phoneOverlay .reportBubble svg {
@@ -1455,12 +1455,12 @@ h1 {
 .phoneOverlay .phoneMetrics {
   grid-template-columns: minmax(0, 1fr) 50px;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 
 .phoneOverlay .phoneMetricCard {
   gap: 4px;
-  padding: 8px;
+  padding: 7px;
   background: #fff;
 }
 
@@ -1477,8 +1477,8 @@ h1 {
 }
 
 .phoneOverlay .privacyFeed {
-  min-height: 56px;
-  padding: 8px;
+  min-height: 50px;
+  padding: 7px;
   grid-template-columns: 18px minmax(0, 1fr);
   gap: 8px;
   background: #fff;
@@ -1498,9 +1498,9 @@ h1 {
 }
 
 .phoneOverlay .callButton {
-  min-height: 34px;
+  min-height: 32px;
   margin-top: auto;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
 }
 
 .phoneOverlay .phoneHomeIndicator {
@@ -1508,24 +1508,35 @@ h1 {
 }
 
 .phoneOverlay .roleSelection {
-  gap: 8px;
-  padding-top: 8px;
+  align-content: center;
+  gap: 10px;
+  padding: 0;
+  overflow: visible;
+}
+
+.phoneOverlay .roleSelectionHeader {
+  gap: 5px;
 }
 
 .phoneOverlay .roleSelection h2 {
-  font-size: 0.98rem;
+  font-size: 0.86rem;
+  line-height: 1.18;
 }
 
 .phoneOverlay .roleSelection p {
-  font-size: 0.72rem;
-  line-height: 1.45;
+  font-size: 0.62rem;
+  line-height: 1.36;
+}
+
+.phoneOverlay .roleOptionList {
+  gap: 7px;
 }
 
 .phoneOverlay .roleSelection button {
   grid-template-columns: 26px minmax(0, 1fr);
   gap: 8px;
-  min-height: 56px;
-  padding: 9px;
+  min-height: 52px;
+  padding: 8px;
 }
 
 .phoneOverlay .roleSelection button svg {
@@ -1534,8 +1545,8 @@ h1 {
 }
 
 .phoneOverlay .roleSelection small {
-  font-size: 0.64rem;
-  line-height: 1.25;
+  font-size: 0.6rem;
+  line-height: 1.2;
 }
 
 .bottomAppLayout {
@@ -1779,7 +1790,7 @@ h1 {
   }
 
   .phoneOverlay .phoneFrame {
-    width: 216px;
+    width: 232px;
     aspect-ratio: var(--phone-aspect);
     height: auto;
     min-height: 0;
@@ -1788,13 +1799,13 @@ h1 {
   }
 
   .phoneOverlay .reportBubble {
-    height: 88px;
-    font-size: 0.7rem;
+    min-height: 0;
+    font-size: 0.66rem;
   }
 
   .phoneOverlay .reportBubble p {
-    max-height: 54px;
     min-height: 0;
+    overflow: visible;
   }
 
   .bottomAppLayout {
@@ -1988,11 +1999,27 @@ h1 {
 
 .roleSelection {
   display: grid;
-  gap: 12px;
+  align-content: center;
+  gap: 14px;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding-top: 18px;
+  padding: 10px 0 6px;
+}
+
+.roleSelectionHeader {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.roleSelectionHeader .eyebrow {
+  justify-self: center;
+}
+
+.roleOptionList {
+  display: grid;
+  gap: 10px;
 }
 
 .roleSelection h2 {

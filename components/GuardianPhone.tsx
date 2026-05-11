@@ -176,24 +176,28 @@ function RoleSelection({
 
   return (
     <div className="roleSelection" aria-labelledby="phone-title">
-      <p className="eyebrow">{t.viewMode}</p>
-      <h2 id="phone-title">{t.rolePrompt}</h2>
-      <p>{t.roleDescription}</p>
+      <div className="roleSelectionHeader">
+        <p className="eyebrow">{t.viewMode}</p>
+        <h2 id="phone-title">{t.rolePrompt}</h2>
+        <p>{t.roleDescription}</p>
+      </div>
 
-      <button type="button" onClick={() => onSelect("family")}>
-        <HeartHandshake aria-hidden="true" size={22} />
-        <span>
-          <strong>{t.familyRole}</strong>
-          <small>{t.familyRoleHint}</small>
-        </span>
-      </button>
-      <button type="button" onClick={() => onSelect("socialWorker")}>
-        <BriefcaseBusiness aria-hidden="true" size={22} />
-        <span>
-          <strong>{t.socialWorkerRole}</strong>
-          <small>{t.socialWorkerRoleHint}</small>
-        </span>
-      </button>
+      <div className="roleOptionList">
+        <button type="button" onClick={() => onSelect("family")}>
+          <HeartHandshake aria-hidden="true" size={22} />
+          <span>
+            <strong>{t.familyRole}</strong>
+            <small>{t.familyRoleHint}</small>
+          </span>
+        </button>
+        <button type="button" onClick={() => onSelect("socialWorker")}>
+          <BriefcaseBusiness aria-hidden="true" size={22} />
+          <span>
+            <strong>{t.socialWorkerRole}</strong>
+            <small>{t.socialWorkerRoleHint}</small>
+          </span>
+        </button>
+      </div>
     </div>
   );
 }
