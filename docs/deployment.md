@@ -2,7 +2,7 @@
 
 ## Live Demo
 
-**URL:** <!-- REPLACE after first deploy: https://gentlesight-demo.vercel.app -->
+**URL:** https://gentlesight-demo.vercel.app
 
 ## Platform
 

@@ -1,5 +1,7 @@
 # GentleSight
 
+**Live Demo:** [gentlesight-demo.vercel.app](https://gentlesight-demo.vercel.app)
+
 GentleSight is an interactive Next.js prototype that explains how NILM-style home energy signals can be interpreted as daily living routines and summarized for a guardian-facing app.
 
 The demo uses local mock data only. It does not connect to a live NILM model, database, or LLM provider yet.
