@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import "./prototype.css";
 
@@ -19,6 +20,7 @@ export default function RootLayout({
           본문으로 건너뛰기
         </a>
         {children}
+        <Analytics />
       </body>
     </html>
   );
