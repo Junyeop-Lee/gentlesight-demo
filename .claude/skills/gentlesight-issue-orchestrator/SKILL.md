@@ -16,7 +16,7 @@ Use this workflow when resolving GentleSight implementation issues.
    - Default UI shows living-rhythm summaries only.
    - Raw event logs are available only through the explicit privacy unlock explanation.
    - AI API inputs should use privacy-safe summaries, not raw appliance-level events.
-5. Keep phone UI fixed-height and manage extra content inside the phone frame.
+5. Keep phone UI compact, realistic portrait smartphone ratio near 9:19.5, and opaque. Manage extra content inside the phone frame.
 6. Verify with `npm run build`, `git diff --check`, and browser QA when possible.
 7. Create a PR that references all resolved issues, then squash merge when checks and requested QA are complete.
 

@@ -375,3 +375,16 @@ html, body {
     bottom: 150px;
   }
 }
+
+@media (max-width: 1024px) and (orientation: landscape) {
+  .mobileAppShell .homeChrome {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .mobileAppShell .homeChrome .topControls {
+    justify-content: flex-end;
+  }
+}

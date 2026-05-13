@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import "./prototype.css";
@@ -6,6 +6,12 @@ import "./prototype.css";
 export const metadata: Metadata = {
   title: "GentleSight",
   description: "Interactive home energy routine monitoring demo"
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover"
 };
 
 export default function RootLayout({
