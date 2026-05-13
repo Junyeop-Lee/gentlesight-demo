@@ -2119,6 +2119,7 @@ h1 {
 
   .mobileModeContent {
     display: grid;
+    grid-template-rows: minmax(0, 1fr);
     min-height: 0;
     overflow: auto;
     padding: 12px;
