@@ -28,6 +28,10 @@ import {
   inferAdlState
 } from "@/lib/nilmLogic";
 import {
+  buildPrivacySafeAiInput,
+  type PrivacySafeReportResponse
+} from "@/lib/privacySafeAi";
+import {
   DEFAULT_SIMULATION_MINUTES_PER_SECOND,
   FAST_SIMULATION_MINUTES_PER_SECOND,
   SIMULATION_END_MINUTES,
@@ -75,6 +79,8 @@ export function NilmGuardianDemo() {
   const isMobileAppViewport = useMediaQuery(MOBILE_APP_QUERY);
   const mobileHistoryEntryRef = useRef(false);
   const previousMobileModeRef = useRef<MobileMode>("interaction");
+  const aiReportCacheRef = useRef(new Map<string, string>());
+  const [aiReportMessage, setAiReportMessage] = useState<string | null>(null);
 
   const currentTime = formatClock(currentMinutes);
   const localizedTime = formatLocalizedClock(currentMinutes, language);
@@ -84,6 +90,7 @@ export function NilmGuardianDemo() {
     : DEFAULT_SIMULATION_MINUTES_PER_SECOND;
 
   const latestEvent = events.at(-1);
+  const activeGuardianRole = guardianRole ?? "family";
   const adlState = useMemo(
     () => inferAdlState(events, currentMinutes),
     [events, currentMinutes]
@@ -98,10 +105,36 @@ export function NilmGuardianDemo() {
         adlState,
         anomaly,
         latestEvent,
-        guardianRole ?? "family",
+        activeGuardianRole,
         language
       ),
-    [adlState, anomaly, latestEvent, guardianRole, language]
+    [adlState, anomaly, latestEvent, activeGuardianRole, language]
+  );
+  const reportInput = useMemo(
+    () =>
+      buildPrivacySafeAiInput({
+        adlState,
+        anomaly,
+        report: guardianReport,
+        role: activeGuardianRole,
+        eventCount: events.length,
+        language
+      }),
+    [adlState, anomaly, guardianReport, activeGuardianRole, events.length, language]
+  );
+  const reportInputSignature = useMemo(
+    () => JSON.stringify(reportInput),
+    [reportInput]
+  );
+  const displayedGuardianReport = useMemo(
+    () =>
+      aiReportMessage
+        ? {
+            ...guardianReport,
+            message: aiReportMessage
+          }
+        : guardianReport,
+    [guardianReport, aiReportMessage]
   );
   const homeLighting = useMemo(
     () => getHomeLighting(currentMinutes, events),
@@ -127,6 +160,54 @@ export function NilmGuardianDemo() {
       setIsClockRunning(false);
     }
   }, [currentMinutes, isClockRunning]);
+
+  useEffect(() => {
+    if (!guardianRole) {
+      setAiReportMessage(null);
+      return;
+    }
+
+    const cachedMessage = aiReportCacheRef.current.get(reportInputSignature);
+    if (cachedMessage) {
+      setAiReportMessage(cachedMessage);
+      return;
+    }
+
+    setAiReportMessage(null);
+    const abortController = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      fetch("/api/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: reportInputSignature,
+        signal: abortController.signal
+      })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((response: PrivacySafeReportResponse | null) => {
+          if (
+            response?.source === "openai" &&
+            typeof response.message === "string" &&
+            response.message.trim()
+          ) {
+            const message = response.message.trim();
+            aiReportCacheRef.current.set(reportInputSignature, message);
+            setAiReportMessage(message);
+          }
+        })
+        .catch(() => {
+          if (!abortController.signal.aborted) {
+            setAiReportMessage(null);
+          }
+        });
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      abortController.abort();
+    };
+  }, [guardianRole, reportInputSignature]);
 
   useEffect(() => {
     if (!isMobileAppViewport && mobileMode !== "interaction") {
@@ -204,6 +285,7 @@ export function NilmGuardianDemo() {
     setIsClockRunning(true);
     setDetailPanel(null);
     setMobileMode("interaction");
+    setAiReportMessage(null);
   }, []);
 
   const handleMobileModeSelect = useCallback((mode: MobileInfoMode) => {
@@ -401,7 +483,7 @@ export function NilmGuardianDemo() {
           {isPhoneOpen ? (
             <div className="phoneOverlay" id="guardian-phone-panel">
               <GuardianPhone
-                report={guardianReport}
+                report={displayedGuardianReport}
                 adlState={adlState}
                 anomaly={anomaly}
                 hasSignal={Boolean(latestEvent)}
@@ -429,7 +511,7 @@ export function NilmGuardianDemo() {
                 <Smartphone aria-hidden="true" size={28} />
                 {anomaly.severity === "caution" ? (
                   <span className="phoneNotificationBadge">
-                    {guardianReport.notificationLabel}
+                    {displayedGuardianReport.notificationLabel}
                   </span>
                 ) : null}
               </>
@@ -445,7 +527,7 @@ export function NilmGuardianDemo() {
             >
               {mobileInfoMode === "guardian" ? (
                 <MobileGuardianDashboard
-                  report={guardianReport}
+                  report={displayedGuardianReport}
                   adlState={adlState}
                   anomaly={anomaly}
                   hasSignal={Boolean(latestEvent)}
