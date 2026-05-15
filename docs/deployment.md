@@ -51,14 +51,15 @@ Open a PR → Vercel auto-creates a preview URL.
 
 ## Environment Variables
 
-No environment variables are required for the current prototype.
+No environment variables are required for local fallback behavior.
 
 When adding AI API features, register variables in the Vercel Dashboard only — **do not commit `.env` files**:
 
 | Variable | Purpose | Where to set |
 |---|---|---|
-| `OPENAI_API_KEY` | OpenAI API (future) | Vercel → Settings → Environment Variables |
-| `ANTHROPIC_API_KEY` | Anthropic API (future) | Vercel → Settings → Environment Variables |
+| `OPENAI_API_KEY` | Enables OpenAI-backed guardian report messages | Vercel → Settings → Environment Variables |
+| `OPENAI_REPORT_MODEL` | Optional model override; defaults to `gpt-5.4-mini` | Vercel → Settings → Environment Variables |
+| `ANTHROPIC_API_KEY` | Reserved for future provider expansion | Vercel → Settings → Environment Variables |
 
 ## Rollback
 

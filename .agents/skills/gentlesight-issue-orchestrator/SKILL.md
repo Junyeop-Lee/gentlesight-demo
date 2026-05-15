@@ -11,7 +11,7 @@ Use this workflow when resolving GentleSight implementation issues.
 
 1. Read the current branch, worktree status, issue list, and PRD acceptance criteria.
 2. Resolve issues in priority order. Items tagged as sequential must not be implemented in parallel with dependent tasks.
-3. If the request is about OpenAI, an AI API key, `/api/report`, AI-generated guardian messages, or the previous AI API readiness PRD, use `.claude/skills/gentlesight-ai-api-readiness/SKILL.md` and follow its ordered issue sequence.
+3. If the request is about OpenAI, an AI API key, `/api/report`, AI-generated guardian messages, or the previous AI API readiness PRD, use `.agents/skills/gentlesight-ai-api-readiness/SKILL.md` and follow its ordered issue sequence.
 4. Keep the Interactive Home as the main canvas. Other UI surfaces should appear as overlays or bottom controls.
 5. Maintain the privacy boundary:
    - Default UI shows living-rhythm summaries only.

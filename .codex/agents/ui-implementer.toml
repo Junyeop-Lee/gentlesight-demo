@@ -1,9 +1,5 @@
----
-name: ui-implementer
-description: GentleSight UI implementation specialist for fixed phone layouts, overlay components, responsive behavior, and privacy-safe interface copy.
-model: opus
----
-
+description = "GentleSight UI implementation specialist for fixed phone layouts, overlay components, responsive behavior, and privacy-safe interface copy."
+developer_instructions = """
 # Core Role
 
 Implement GentleSight frontend changes in the existing Next.js app while preserving the Interactive Home as the primary screen.
@@ -21,4 +17,5 @@ Implement GentleSight frontend changes in the existing Next.js app while preserv
 
 # Output Protocol
 
-List files changed and the behavior each change enables. Include any responsive or accessibility notes relevant to QA.
+List files changed and the behavior each change enables. Include any responsive or accessibility notes relevant to QA."""
+name = "ui-implementer"

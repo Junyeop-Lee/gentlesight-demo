@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { generateOpenAiReportMessage } from "@/lib/openAiReport";
 import {
-  buildReportPrompt,
   findRawKeyPath,
+  isPrivacySafeAiInput,
   type PrivacySafeAiInput
 } from "@/lib/privacySafeAi";
 
@@ -38,11 +39,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    return NextResponse.json({
-      prompt: buildReportPrompt(body),
-      message:
-        "AI API 연결 전까지는 프라이버시 보호 요약만 검증합니다. 실제 생성 모델 연결 시에도 원천 데이터는 전송하지 않습니다."
-    });
+    return NextResponse.json(await generateOpenAiReportMessage(body));
   } catch {
     return NextResponse.json(
       {
@@ -52,21 +49,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-function isPrivacySafeAiInput(
-  value: Partial<PrivacySafeAiInput>
-): value is PrivacySafeAiInput {
-  return (
-    typeof value.routineState === "string" &&
-    typeof value.confidence === "number" &&
-    typeof value.severity === "string" &&
-    (value.role === "family" || value.role === "socialWorker") &&
-    typeof value.riskScore === "number" &&
-    typeof value.baselineComparison === "string" &&
-    typeof value.reasonSummary === "string" &&
-    typeof value.trendSummary === "string" &&
-    typeof value.recommendedAction === "string" &&
-    typeof value.privacyPolicyMarker === "string"
-  );
 }

@@ -27,6 +27,7 @@ The prototype focuses on:
 - Guardian phone panel with role selection and Korean report copy
 - Privacy summary panel with explicit confirmation before raw-processing logs
 - Future AI API boundary at `POST /api/report`
+- OpenAI-backed report message generation when `OPENAI_API_KEY` is configured
 
 ## Tech Stack
 
@@ -72,6 +73,7 @@ npm run start
 | `npm run dev` | Start local development server |
 | `npm run build` | Build the production bundle |
 | `npm run start` | Start the production server |
+| `npm test` | Run privacy-safe AI API unit tests |
 
 ## Project Structure
 
@@ -100,7 +102,7 @@ Raw demo input -> De-identified living-rhythm signal -> AI-safe report input
 
 ## AI API Contract
 
-`POST /api/report` currently validates a privacy-safe report payload and returns the generated prompt that a future LLM call can use.
+`POST /api/report` validates a privacy-safe report payload and can generate the guardian report message through OpenAI when `OPENAI_API_KEY` is configured. Without a key, or if the provider response is unsafe, the endpoint returns a local fallback so the demo remains usable.
 
 Expected payload:
 
@@ -110,6 +112,7 @@ Expected payload:
   "confidence": 91,
   "severity": "caution",
   "role": "family",
+  "language": "ko",
   "riskScore": 84,
   "baselineComparison": "개인 기준선 07:50-08:20",
   "reasonSummary": "오전 활동 시작이 기준선보다 늦음",
@@ -120,6 +123,18 @@ Expected payload:
 ```
 
 Raw fields are blocked even when nested inside another object.
+
+Expected response:
+
+```json
+{
+  "message": "오늘 아침 생활 리듬이 평소보다 늦어 보여요. 가볍게 안부를 확인해보세요.",
+  "source": "openai",
+  "model": "gpt-5.4-mini"
+}
+```
+
+The AI may replace only the report `message`. Title, severity, tone, CTA, and notification badges remain rule-based. Configure `OPENAI_REPORT_MODEL` to override the default `gpt-5.4-mini` model.
 
 ## Documentation
 
