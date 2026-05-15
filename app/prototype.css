@@ -354,6 +354,10 @@ html, body {
     contrast(1.05);
 }
 
+.homeExperience .applianceNode[data-appliance-id="light"] {
+  --appliance-y: 25%;
+}
+
 @media (max-width: 980px) {
   .homeChrome {
     flex-direction: column;
@@ -386,5 +390,172 @@ html, body {
 
   .mobileAppShell .homeChrome .topControls {
     justify-content: flex-end;
+  }
+
+  .mobileAppShell:not(.mobileMode-interaction) .homeChrome,
+  .mobileAppShell:not(.mobileMode-interaction) .demoInputHint,
+  .mobileAppShell:not(.mobileMode-interaction) .mobileActionDock {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape), (max-height: 390px) and (orientation: landscape) {
+  .mobileAppShell .compactBrand {
+    max-width: 120px;
+    padding: 7px 9px;
+  }
+
+  .mobileAppShell .compactBrand h1 {
+    font-size: 0.92rem;
+  }
+
+  .mobileAppShell .topControls {
+    transform: scale(0.9);
+    transform-origin: top right;
+  }
+
+  .mobileAppShell .demoInputHint {
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 9px;
+  }
+
+  .mobileAppShell .demoInputHint span {
+    display: none;
+  }
+
+  .mobileAppShell .homeExperience .applianceNode {
+    width: 58px;
+    min-height: 56px;
+  }
+
+  .mobileAppShell .homeExperience .applianceIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .mobileAppShell .homeExperience .applianceLabel {
+    bottom: -20px;
+    font-size: 0.58rem;
+  }
+
+  .mobileAppShell .homeExperience .applianceNode[data-appliance-id="light"] {
+    --appliance-y: 31%;
+  }
+
+  .mobileAppShell .homeExperience .applianceNode[data-appliance-id="microwave"] {
+    --appliance-y: 33%;
+  }
+
+  .mobileAppShell .homeExperience .applianceNode[data-appliance-id="fridge"] {
+    --appliance-y: 56%;
+  }
+
+  .mobileAppShell .homeExperience .applianceNode[data-appliance-id="riceCooker"] {
+    --appliance-y: 43%;
+  }
+
+  .mobileAppShell .mobileActionDock {
+    gap: 4px;
+    padding: 5px;
+    border-radius: 16px;
+  }
+
+  .mobileAppShell .mobileActionDock button {
+    min-height: 38px;
+    gap: 4px;
+    font-size: 0.66rem;
+  }
+}
+
+@media (max-width: 620px) and (orientation: landscape), (max-height: 360px) and (orientation: landscape) {
+  .mobileAppShell .mobileModeOverlay {
+    padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right))
+      max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+  }
+
+  .mobileModeSurface {
+    border-radius: 16px;
+  }
+
+  .mobileModeHeader {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .mobileModeHeader h2 {
+    display: none;
+  }
+
+  .mobileBackButton {
+    min-height: 32px;
+    padding: 0 10px;
+  }
+
+  .mobileModeTabs {
+    max-width: none;
+    gap: 4px;
+  }
+
+  .mobileModeTabs button {
+    min-height: 32px;
+    padding: 0 6px;
+  }
+
+  .mobileModeTabs span {
+    display: none;
+  }
+
+  .mobileModeContent {
+    padding: 8px;
+  }
+
+  .mobileRoleCard {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 8px;
+    max-height: 100%;
+    overflow: auto;
+    padding: 10px;
+  }
+
+  .mobileRoleCard svg {
+    display: none;
+  }
+
+  .mobileRoleCard > .mobileRoleGrid {
+    grid-column: auto;
+    grid-row: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobileRoleCard h2 {
+    font-size: 0.92rem;
+  }
+
+  .mobileRoleCard p {
+    -webkit-line-clamp: 2;
+  }
+
+  .mobileRoleGrid button {
+    min-height: 48px;
+    padding: 7px 8px;
+  }
+
+  .mobileGuardianView {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: auto;
+  }
+
+  .mobileGuardianReportPane,
+  .mobileGuardianInsightPane {
+    min-height: auto;
+    padding: 10px;
+  }
+
+  .mobileGuardianHeader h2 {
+    font-size: 1.05rem;
   }
 }
