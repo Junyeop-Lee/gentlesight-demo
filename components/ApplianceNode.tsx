@@ -24,9 +24,10 @@ export function ApplianceNode({
   return (
     <motion.button
       className="applianceNode"
+      data-appliance-id={appliance.id}
       style={{
-        left: `${appliance.x}%`,
-        top: `${appliance.y}%`,
+        left: `var(--appliance-x, ${appliance.x}%)`,
+        top: `var(--appliance-y, ${appliance.y}%)`,
         "--appliance-color": "#2f9d84"
       } as CSSProperties}
       type="button"
