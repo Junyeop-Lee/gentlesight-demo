@@ -60,6 +60,7 @@ import { PrivacyPanel } from "@/components/PrivacyPanel";
 
 type DetailPanel = ActionPanel | null;
 type MobileMode = "interaction" | MobileInfoMode;
+type AiReportStatus = "idle" | "loading" | "ready" | "fallback";
 
 const MOBILE_APP_QUERY =
   "(max-width: 1024px) and (orientation: landscape)";
@@ -83,6 +84,8 @@ export function NilmGuardianDemo() {
   const [aiReport, setAiReport] = useState<PrivacySafeReportResponse | null>(
     null
   );
+  const [aiReportStatus, setAiReportStatus] =
+    useState<AiReportStatus>("idle");
 
   const currentTime = formatClock(currentMinutes);
   const localizedTime = formatLocalizedClock(currentMinutes, language);
@@ -140,6 +143,8 @@ export function NilmGuardianDemo() {
         : guardianReport,
     [guardianReport, aiReport]
   );
+  const isAiReportLoading =
+    guardianRole !== null && aiReportStatus === "loading";
   const homeLighting = useMemo(
     () => getHomeLighting(currentMinutes, events),
     [currentMinutes, events]
@@ -168,16 +173,21 @@ export function NilmGuardianDemo() {
   useEffect(() => {
     if (!guardianRole) {
       setAiReport(null);
+      setAiReportStatus("idle");
       return;
     }
 
     const cachedReport = aiReportCacheRef.current.get(reportInputSignature);
     if (cachedReport) {
       setAiReport(cachedReport);
+      setAiReportStatus(
+        cachedReport.source === "openai" ? "ready" : "fallback"
+      );
       return;
     }
 
     setAiReport(null);
+    setAiReportStatus("loading");
     const abortController = new AbortController();
     const timeoutId = window.setTimeout(() => {
       fetch("/api/report", {
@@ -190,15 +200,17 @@ export function NilmGuardianDemo() {
       })
         .then((response) => (response.ok ? response.json() : null))
         .then((response: PrivacySafeReportResponse | null) => {
-          if (
+          const isValidReport = Boolean(
             response &&
-            typeof response.message === "string" &&
-            typeof response.supportingSuggestion === "string" &&
-            typeof response.changeSummary === "string" &&
-            response.message.trim() &&
-            response.supportingSuggestion.trim() &&
-            response.changeSummary.trim()
-          ) {
+              typeof response.message === "string" &&
+              typeof response.supportingSuggestion === "string" &&
+              typeof response.changeSummary === "string" &&
+              response.message.trim() &&
+              response.supportingSuggestion.trim() &&
+              response.changeSummary.trim()
+          );
+
+          if (isValidReport && response) {
             const report = {
               ...response,
               message: response.message.trim(),
@@ -207,11 +219,19 @@ export function NilmGuardianDemo() {
             };
             aiReportCacheRef.current.set(reportInputSignature, report);
             setAiReport(report);
+            setAiReportStatus(
+              response.source === "openai" ? "ready" : "fallback"
+            );
+            return;
           }
+
+          setAiReport(null);
+          setAiReportStatus("fallback");
         })
         .catch(() => {
           if (!abortController.signal.aborted) {
             setAiReport(null);
+            setAiReportStatus("fallback");
           }
         });
     }, 300);
@@ -299,6 +319,7 @@ export function NilmGuardianDemo() {
     setDetailPanel(null);
     setMobileMode("interaction");
     setAiReport(null);
+    setAiReportStatus("idle");
   }, []);
 
   const handleMobileModeSelect = useCallback((mode: MobileInfoMode) => {
@@ -497,6 +518,7 @@ export function NilmGuardianDemo() {
             <div className="phoneOverlay" id="guardian-phone-panel">
               <GuardianPhone
                 report={displayedGuardianReport}
+                isReportLoading={isAiReportLoading}
                 adlState={adlState}
                 anomaly={anomaly}
                 hasSignal={Boolean(latestEvent)}
@@ -541,6 +563,7 @@ export function NilmGuardianDemo() {
               {mobileInfoMode === "guardian" ? (
                 <MobileGuardianDashboard
                   report={displayedGuardianReport}
+                  isReportLoading={isAiReportLoading}
                   adlState={adlState}
                   anomaly={anomaly}
                   hasSignal={Boolean(latestEvent)}

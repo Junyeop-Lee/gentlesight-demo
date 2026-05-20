@@ -129,6 +129,9 @@ export const copy = {
     comparison: "평소와 비교",
     privacySummary: "프라이버시 요약",
     liveReport: "Live Report",
+    reportGeneratingTitle: "리포트 생성 중",
+    reportGeneratingMessage:
+      "생활 리듬 요약을 보호자 문구로 정리하고 있습니다.",
     roleChange: "역할 변경",
     viewMode: "View Mode",
     rolePrompt: "어떤 관점으로 확인하시나요?",
@@ -214,6 +217,9 @@ export const copy = {
     comparison: "Baseline",
     privacySummary: "Privacy",
     liveReport: "Live Report",
+    reportGeneratingTitle: "Generating report",
+    reportGeneratingMessage:
+      "GentleSight is turning the routine summary into guardian-facing copy.",
     roleChange: "Change role",
     viewMode: "View Mode",
     rolePrompt: "Which perspective are you using?",

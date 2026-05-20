@@ -24,6 +24,7 @@ import {
 
 type MobileGuardianDashboardProps = {
   report: GuardianReport;
+  isReportLoading: boolean;
   adlState: ADLState;
   anomaly: AnomalyResult;
   hasSignal: boolean;
@@ -34,6 +35,7 @@ type MobileGuardianDashboardProps = {
 
 export function MobileGuardianDashboard({
   report,
+  isReportLoading,
   adlState,
   anomaly,
   hasSignal,
@@ -41,9 +43,13 @@ export function MobileGuardianDashboard({
   role,
   onRoleChange
 }: MobileGuardianDashboardProps) {
-  const typedMessage = useTypedMessage(report.message);
   const [showReason, setShowReason] = useState(false);
   const t = copy[language];
+  const reportTitle = isReportLoading ? t.reportGeneratingTitle : report.title;
+  const reportMessage = isReportLoading
+    ? t.reportGeneratingMessage
+    : report.message;
+  const typedMessage = useTypedMessage(reportMessage);
 
   useEffect(() => {
     setShowReason(false);
@@ -85,7 +91,7 @@ export function MobileGuardianDashboard({
         <div className="mobileGuardianHeader">
           <div>
             <p className="eyebrow">{t.liveReport}</p>
-            <h2 id="mobile-report-title">{report.title}</h2>
+            <h2 id="mobile-report-title">{reportTitle}</h2>
           </div>
           <span className={`statusPill ${report.tone}`}>
             {toneLabels[language][report.tone]}
@@ -96,8 +102,10 @@ export function MobileGuardianDashboard({
           <BellRing aria-hidden="true" size={20} />
           <div className="reportBubbleCopy">
             <p>{typedMessage}</p>
-            {report.changeSummary ? <small>{report.changeSummary}</small> : null}
-            {report.supportingSuggestion ? (
+            {!isReportLoading && report.changeSummary ? (
+              <small>{report.changeSummary}</small>
+            ) : null}
+            {!isReportLoading && report.supportingSuggestion ? (
               <small>{report.supportingSuggestion}</small>
             ) : null}
           </div>

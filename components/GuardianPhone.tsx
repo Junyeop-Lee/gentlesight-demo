@@ -24,6 +24,7 @@ import {
 
 type GuardianPhoneProps = {
   report: GuardianReport;
+  isReportLoading: boolean;
   adlState: ADLState;
   anomaly: AnomalyResult;
   hasSignal: boolean;
@@ -34,6 +35,7 @@ type GuardianPhoneProps = {
 
 export function GuardianPhone({
   report,
+  isReportLoading,
   adlState,
   anomaly,
   hasSignal,
@@ -41,9 +43,13 @@ export function GuardianPhone({
   role,
   onRoleChange
 }: GuardianPhoneProps) {
-  const typedMessage = useTypedMessage(report.message);
   const [showReason, setShowReason] = useState(false);
   const t = copy[language];
+  const reportTitle = isReportLoading ? t.reportGeneratingTitle : report.title;
+  const reportMessage = isReportLoading
+    ? t.reportGeneratingMessage
+    : report.message;
+  const typedMessage = useTypedMessage(reportMessage);
 
   useEffect(() => {
     setShowReason(false);
@@ -74,7 +80,7 @@ export function GuardianPhone({
             <div className="phoneStatus">
               <div>
                 <p className="eyebrow">{t.liveReport}</p>
-                <h2 id="phone-title">{report.title}</h2>
+                <h2 id="phone-title">{reportTitle}</h2>
               </div>
               <span className={`statusPill ${report.tone}`}>
                 {toneLabels[language][report.tone]}
@@ -85,8 +91,10 @@ export function GuardianPhone({
               <BellRing aria-hidden="true" size={20} />
               <div className="reportBubbleCopy">
                 <p>{typedMessage}</p>
-                {report.changeSummary ? <small>{report.changeSummary}</small> : null}
-                {report.supportingSuggestion ? (
+                {!isReportLoading && report.changeSummary ? (
+                  <small>{report.changeSummary}</small>
+                ) : null}
+                {!isReportLoading && report.supportingSuggestion ? (
                   <small>{report.supportingSuggestion}</small>
                 ) : null}
               </div>
