@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import {
+  buildFallbackReportResponse,
   buildReportPrompt,
-  FALLBACK_REPORT_MESSAGE,
   type PrivacySafeAiInput,
   type PrivacySafeReportResponse
 } from "@/lib/privacySafeAi";
@@ -16,12 +16,45 @@ type GenerateReportMessageOptions = {
   client?: ReportOpenAiClient;
 };
 
+type GeneratedReportFields = Pick<
+  PrivacySafeReportResponse,
+  "message" | "supportingSuggestion" | "changeSummary"
+>;
+
 const reportInstructions = [
   "You write guardian-facing GentleSight report messages.",
   "Use only the privacy-preserving summary fields supplied by the application.",
   "Do not infer, invent, or reveal raw appliance names, timestamps, wattage, waveforms, durations, event logs, or surveillance-like details.",
-  "Generate only the message body. The application already owns title, severity, tone, CTA, and notification badge."
+  "Generate only message, supportingSuggestion, and changeSummary. The application already owns title, severity, score, tone, CTA, and notification badge."
 ].join(" ");
+
+const reportTextFormat = {
+  type: "json_schema",
+  name: "gentlesight_guardian_report",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    required: ["message", "supportingSuggestion", "changeSummary"],
+    properties: {
+      message: {
+        type: "string",
+        minLength: 1,
+        maxLength: 180
+      },
+      supportingSuggestion: {
+        type: "string",
+        minLength: 1,
+        maxLength: 120
+      },
+      changeSummary: {
+        type: "string",
+        minLength: 1,
+        maxLength: 120
+      }
+    }
+  }
+} as const;
 
 const unsafeOutputPatterns = [
   /\b\d{1,2}:\d{2}\b/,
@@ -39,54 +72,109 @@ export async function generateOpenAiReportMessage(
     options.model ?? process.env.OPENAI_REPORT_MODEL ?? DEFAULT_REPORT_MODEL;
 
   if (!apiKey && !options.client) {
-    return {
-      message: FALLBACK_REPORT_MESSAGE,
-      source: "fallback",
+    return buildFallbackReportResponse(input, {
       model,
       reason: "missing_api_key"
-    };
+    });
   }
 
   try {
     const client = options.client ?? new OpenAI({ apiKey });
-    const response = await client.responses.create({
-      model,
-      instructions: reportInstructions,
-      input: buildReportPrompt(input),
-      max_output_tokens: 120,
-      store: false
-    });
 
-    const message = response.output_text?.trim() ?? "";
-
-    if (!message || findUnsafeGeneratedMessageReason(message)) {
-      return {
-        message: FALLBACK_REPORT_MESSAGE,
-        source: "fallback",
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const response = await client.responses.create({
         model,
-        reason: "unsafe_output",
-        usage: normalizeUsage(response.usage)
-      };
-    }
+        instructions: reportInstructions,
+        input: buildReportPrompt(input),
+        max_output_tokens: 220,
+        store: false,
+        text: {
+          format: reportTextFormat
+        }
+      });
 
-    return {
-      message,
-      source: "openai",
-      model,
-      usage: normalizeUsage(response.usage)
-    };
+      const generatedReport = parseGeneratedReport(response);
+      const unsafeReason = generatedReport
+        ? findUnsafeGeneratedReportReason(generatedReport)
+        : "invalid_output";
+
+      if (generatedReport && !unsafeReason) {
+        return {
+          message: generatedReport.message,
+          supportingSuggestion: generatedReport.supportingSuggestion,
+          changeSummary: generatedReport.changeSummary,
+          source: "openai",
+          model,
+          usage: normalizeUsage(response.usage)
+        };
+      }
+
+      if (attempt === 1) {
+        return buildFallbackReportResponse(input, {
+          model,
+          reason: unsafeReason === "invalid_output" ? "invalid_output" : "unsafe_output",
+          usage: normalizeUsage(response.usage)
+        });
+      }
+    }
   } catch {
-    return {
-      message: FALLBACK_REPORT_MESSAGE,
-      source: "fallback",
+    return buildFallbackReportResponse(input, {
       model,
       reason: "provider_error"
-    };
+    });
   }
+
+  return buildFallbackReportResponse(input, {
+    model,
+    reason: "provider_error"
+  });
 }
 
 export function findUnsafeGeneratedMessageReason(message: string) {
   return unsafeOutputPatterns.find((pattern) => pattern.test(message)) ?? null;
+}
+
+export function findUnsafeGeneratedReportReason(
+  report: GeneratedReportFields
+) {
+  return (
+    findUnsafeGeneratedMessageReason(report.message) ??
+    findUnsafeGeneratedMessageReason(report.supportingSuggestion) ??
+    findUnsafeGeneratedMessageReason(report.changeSummary)
+  );
+}
+
+function parseGeneratedReport(response: unknown): GeneratedReportFields | null {
+  const outputText = (response as { output_text?: string }).output_text?.trim();
+  if (!outputText) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(outputText) as Partial<GeneratedReportFields>;
+
+    if (
+      typeof parsed.message !== "string" ||
+      typeof parsed.supportingSuggestion !== "string" ||
+      typeof parsed.changeSummary !== "string"
+    ) {
+      return null;
+    }
+
+    const generatedReport = {
+      message: parsed.message.trim(),
+      supportingSuggestion: parsed.supportingSuggestion.trim(),
+      changeSummary: parsed.changeSummary.trim()
+    };
+
+    return generatedReport.message &&
+      generatedReport.supportingSuggestion &&
+      generatedReport.changeSummary
+      ? generatedReport
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function normalizeUsage(usage: unknown): PrivacySafeReportResponse["usage"] {

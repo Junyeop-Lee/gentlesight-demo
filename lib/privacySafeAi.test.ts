@@ -52,6 +52,8 @@ describe("privacy-safe AI input", () => {
     expect(isPrivacySafeAiInput(input)).toBe(true);
     expect(input.language).toBe("en");
     expect(input.routineState).toBe("Breakfast preparation");
+    expect(input.changeLevel).toBe("clear_change");
+    expect(input.baselineComparison).not.toMatch(/\d{1,2}:\d{2}/);
     expect(findRawKeyPath(input)).toBeNull();
   });
 
@@ -72,6 +74,7 @@ describe("privacy-safe AI input", () => {
         routineState: "Breakfast preparation",
         confidence: 91,
         severity: "urgent",
+        changeLevel: "clear_change",
         role: "family",
         language: "en",
         riskScore: 84,

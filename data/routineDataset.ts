@@ -43,6 +43,8 @@ export type AnomalyResult = {
 export type GuardianReport = {
   title: string;
   message: string;
+  supportingSuggestion?: string;
+  changeSummary?: string;
   tone: "calm" | "warm" | "alert";
   recommendedAction: string;
   notificationLabel: string;

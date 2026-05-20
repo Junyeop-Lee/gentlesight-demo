@@ -94,7 +94,13 @@ export function MobileGuardianDashboard({
 
         <div className="mobileReportBubble" aria-live="polite">
           <BellRing aria-hidden="true" size={20} />
-          <p>{typedMessage}</p>
+          <div className="reportBubbleCopy">
+            <p>{typedMessage}</p>
+            {report.changeSummary ? <small>{report.changeSummary}</small> : null}
+            {report.supportingSuggestion ? (
+              <small>{report.supportingSuggestion}</small>
+            ) : null}
+          </div>
           <span className="typingCursor" aria-hidden="true" />
         </div>
 

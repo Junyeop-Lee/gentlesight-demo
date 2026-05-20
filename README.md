@@ -111,10 +111,11 @@ Expected payload:
   "routineState": "아침 루틴 지연",
   "confidence": 91,
   "severity": "caution",
+  "changeLevel": "clear_change",
   "role": "family",
   "language": "ko",
   "riskScore": 84,
-  "baselineComparison": "개인 기준선 07:50-08:20",
+  "baselineComparison": "평소 생활 리듬 범위에서 뚜렷하게 벗어남",
   "reasonSummary": "오전 활동 시작이 기준선보다 늦음",
   "trendSummary": "확인 필요",
   "recommendedAction": "전화하기",
@@ -123,18 +124,21 @@ Expected payload:
 ```
 
 Raw fields are blocked even when nested inside another object.
+Clock-like raw values such as `07:50` are also rejected in report summaries.
 
 Expected response:
 
 ```json
 {
   "message": "오늘 아침 생활 리듬이 평소보다 늦어 보여요. 가볍게 안부를 확인해보세요.",
+  "supportingSuggestion": "통화가 어렵다면 짧은 메시지를 남겨보세요.",
+  "changeSummary": "평소보다 뚜렷한 아침 리듬 변화가 요약되었습니다.",
   "source": "openai",
   "model": "gpt-5.4-mini"
 }
 ```
 
-The AI may replace only the report `message`. Title, severity, tone, CTA, and notification badges remain rule-based. Configure `OPENAI_REPORT_MODEL` to override the default `gpt-5.4-mini` model.
+The AI may replace only the guardian-facing report copy: `message`, `supportingSuggestion`, and `changeSummary`. Title, severity, tone, CTA, change score, and notification badges remain rule-based. Configure `OPENAI_REPORT_MODEL` to override the default `gpt-5.4-mini` model.
 
 ## Documentation
 

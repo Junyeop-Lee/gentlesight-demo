@@ -931,11 +931,24 @@ h1 {
   color: #86dfc6;
 }
 
+.reportBubbleCopy {
+  min-width: 0;
+}
+
 .reportBubble p {
   min-height: 0;
   margin: 0;
   overflow: visible;
   line-height: 1.65;
+}
+
+.reportBubbleCopy small {
+  display: block;
+  margin-top: 9px;
+  color: #c8f4e7;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .typingCursor {
@@ -1455,6 +1468,12 @@ h1 {
   min-height: 0;
   overflow: visible;
   line-height: 1.42;
+}
+
+.phoneOverlay .reportBubbleCopy small {
+  margin-top: 5px;
+  font-size: 0.56rem;
+  line-height: 1.24;
 }
 
 .phoneOverlay .reportBubble svg {
@@ -2297,6 +2316,15 @@ h1 {
     font-size: clamp(0.78rem, 1.6vw, 1rem);
     font-weight: 800;
     line-height: 1.65;
+  }
+
+  .mobileReportBubble .reportBubbleCopy small {
+    display: block;
+    margin-top: 8px;
+    color: #b9eeee;
+    font-size: clamp(0.66rem, 1.25vw, 0.78rem);
+    font-weight: 800;
+    line-height: 1.35;
   }
 
   .mobileCallButton {
