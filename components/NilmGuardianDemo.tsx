@@ -79,8 +79,10 @@ export function NilmGuardianDemo() {
   const isMobileAppViewport = useMediaQuery(MOBILE_APP_QUERY);
   const mobileHistoryEntryRef = useRef(false);
   const previousMobileModeRef = useRef<MobileMode>("interaction");
-  const aiReportCacheRef = useRef(new Map<string, string>());
-  const [aiReportMessage, setAiReportMessage] = useState<string | null>(null);
+  const aiReportCacheRef = useRef(new Map<string, PrivacySafeReportResponse>());
+  const [aiReport, setAiReport] = useState<PrivacySafeReportResponse | null>(
+    null
+  );
 
   const currentTime = formatClock(currentMinutes);
   const localizedTime = formatLocalizedClock(currentMinutes, language);
@@ -128,13 +130,15 @@ export function NilmGuardianDemo() {
   );
   const displayedGuardianReport = useMemo(
     () =>
-      aiReportMessage
+      aiReport?.source === "openai"
         ? {
             ...guardianReport,
-            message: aiReportMessage
+            message: aiReport.message,
+            supportingSuggestion: aiReport.supportingSuggestion,
+            changeSummary: aiReport.changeSummary
           }
         : guardianReport,
-    [guardianReport, aiReportMessage]
+    [guardianReport, aiReport]
   );
   const homeLighting = useMemo(
     () => getHomeLighting(currentMinutes, events),
@@ -163,17 +167,17 @@ export function NilmGuardianDemo() {
 
   useEffect(() => {
     if (!guardianRole) {
-      setAiReportMessage(null);
+      setAiReport(null);
       return;
     }
 
-    const cachedMessage = aiReportCacheRef.current.get(reportInputSignature);
-    if (cachedMessage) {
-      setAiReportMessage(cachedMessage);
+    const cachedReport = aiReportCacheRef.current.get(reportInputSignature);
+    if (cachedReport) {
+      setAiReport(cachedReport);
       return;
     }
 
-    setAiReportMessage(null);
+    setAiReport(null);
     const abortController = new AbortController();
     const timeoutId = window.setTimeout(() => {
       fetch("/api/report", {
@@ -187,18 +191,27 @@ export function NilmGuardianDemo() {
         .then((response) => (response.ok ? response.json() : null))
         .then((response: PrivacySafeReportResponse | null) => {
           if (
-            response?.source === "openai" &&
+            response &&
             typeof response.message === "string" &&
-            response.message.trim()
+            typeof response.supportingSuggestion === "string" &&
+            typeof response.changeSummary === "string" &&
+            response.message.trim() &&
+            response.supportingSuggestion.trim() &&
+            response.changeSummary.trim()
           ) {
-            const message = response.message.trim();
-            aiReportCacheRef.current.set(reportInputSignature, message);
-            setAiReportMessage(message);
+            const report = {
+              ...response,
+              message: response.message.trim(),
+              supportingSuggestion: response.supportingSuggestion.trim(),
+              changeSummary: response.changeSummary.trim()
+            };
+            aiReportCacheRef.current.set(reportInputSignature, report);
+            setAiReport(report);
           }
         })
         .catch(() => {
           if (!abortController.signal.aborted) {
-            setAiReportMessage(null);
+            setAiReport(null);
           }
         });
     }, 300);
@@ -285,7 +298,7 @@ export function NilmGuardianDemo() {
     setIsClockRunning(true);
     setDetailPanel(null);
     setMobileMode("interaction");
-    setAiReportMessage(null);
+    setAiReport(null);
   }, []);
 
   const handleMobileModeSelect = useCallback((mode: MobileInfoMode) => {

@@ -6,10 +6,11 @@ const validInput: PrivacySafeAiInput = {
   routineState: "아침 식사 준비 중",
   confidence: 91,
   severity: "caution",
+  changeLevel: "clear_change",
   role: "family",
   language: "ko",
   riskScore: 84,
-  baselineComparison: "개인 기준선 07:50-08:20",
+  baselineComparison: "평소 생활 리듬 범위에서 뚜렷하게 벗어남",
   reasonSummary: "오전 생활 리듬이 늦게 요약되었습니다.",
   trendSummary: "확인 필요",
   recommendedAction: "전화하기",
@@ -50,6 +51,19 @@ describe("POST /api/report", () => {
     expect(body.field).toBe("nested.events");
   });
 
+  it("rejects raw clock values inside summary strings", async () => {
+    const response = await POST(
+      requestWithBody({
+        ...validInput,
+        baselineComparison: "개인 기준선 07:50-08:20"
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.field).toBe("baselineComparison");
+  });
+
   it("accepts valid privacy-safe input and falls back when no API key exists", async () => {
     const response = await POST(requestWithBody(validInput));
     const body = await response.json();
@@ -57,6 +71,8 @@ describe("POST /api/report", () => {
     expect(response.status).toBe(200);
     expect(body).toMatchObject({
       message: FALLBACK_REPORT_MESSAGE,
+      supportingSuggestion: expect.any(String),
+      changeSummary: expect.any(String),
       source: "fallback",
       reason: "missing_api_key"
     });
