@@ -5,6 +5,7 @@ import {
   type AnomalyResult,
   type ApplianceEvent,
   type ApplianceId,
+  type BaselineWindow,
   type GuardianRole,
   type GuardianReport,
   interactionSlots,
@@ -12,7 +13,6 @@ import {
 } from "@/data/routineDataset";
 import {
   getRoutinePhaseForClock,
-  getRoutinePhaseForMinutes,
   parseClockToMinutes
 } from "@/lib/simulationClock";
 import { localizeAdlLabel, type Language } from "@/lib/i18n";
@@ -20,6 +20,20 @@ import { localizeAdlLabel, type Language } from "@/lib/i18n";
 const applianceLabels = new Map(
   applianceCatalog.map((appliance) => [appliance.id, appliance.label])
 );
+
+export type BaselineProgressStatus =
+  | "scheduled"
+  | "inProgress"
+  | "confirmed"
+  | "watch"
+  | "needsCheck";
+
+export type BaselineProgress = {
+  baseline: BaselineWindow;
+  status: BaselineProgressStatus;
+  isCurrent: boolean;
+  recentSignal: string;
+};
 
 export function createApplianceEvent(
   applianceId: ApplianceId,
@@ -51,15 +65,22 @@ export function inferAdlState(
   currentMinutes: number
 ): ADLState {
   if (events.length === 0) {
-    const phase = getRoutinePhaseForMinutes(currentMinutes);
-    const lateMorning = currentMinutes >= parseClockToMinutes("08:40");
+    const baseline = getCurrentBaselineWindow(currentMinutes);
+    const observeMinutes = parseClockToMinutes(baseline.observeAfter);
+    const cautionMinutes = parseClockToMinutes(baseline.cautionAfter);
+    const confidence =
+      currentMinutes >= cautionMinutes
+        ? 58
+        : currentMinutes >= observeMinutes
+          ? 44
+          : 0;
 
     return {
       label:
-        phase === "morning" && lateMorning
-          ? "아침 생활 신호 미확인"
-          : "생활 리듬 대기",
-      confidence: lateMorning ? 52 : 0,
+        confidence > 0
+          ? `${baseline.label} 미확인`
+          : `${baseline.label} 대기`,
+      confidence,
       relatedEvents: [],
       icon: "unknown"
     };
@@ -90,16 +111,25 @@ export function inferAdlState(
     };
   }
 
-  if (latest.phase === "noon" && restSignals >= 1) {
+  if (latest.phase === "morning" && restSignals >= 1) {
     return {
-      label: "휴식 중",
-      confidence: clampConfidence(70 + restSignals * 12 + mealSignals * 5),
+      label: "오전 휴식",
+      confidence: clampConfidence(66 + restSignals * 12),
       relatedEvents: relatedSignals,
       icon: "rest"
     };
   }
 
-  if (latest.phase === "evening" && mealSignals + restSignals >= 2) {
+  if (latest.phase === "noon") {
+    return {
+      label: mealSignals > 0 ? "점심 전후 활동" : "낮 휴식",
+      confidence: clampConfidence(70 + phaseEvents.length * 8),
+      relatedEvents: relatedSignals,
+      icon: mealSignals > 0 ? "meal" : "rest"
+    };
+  }
+
+  if (latest.phase === "evening" && mealSignals + restSignals >= 1) {
     return {
       label: "저녁 루틴",
       confidence: clampConfidence(72 + phaseEvents.length * 7),
@@ -117,6 +147,15 @@ export function inferAdlState(
     };
   }
 
+  if (latest.phase === "night") {
+    return {
+      label: "취침 전 안정",
+      confidence: clampConfidence(64 + phaseEvents.length * 8),
+      relatedEvents: relatedSignals,
+      icon: "rest"
+    };
+  }
+
   return {
     label: "생활 신호 감지",
     confidence: clampConfidence(58 + phaseEvents.length * 7),
@@ -129,39 +168,41 @@ export function detectAnomaly(
   events: ApplianceEvent[],
   currentMinutes: number
 ): AnomalyResult {
-  const morningBaseline = personalBaselineWindows[0]!;
-  const morningEvents = events.filter((event) => event.phase === "morning");
-  const firstMorning = morningEvents[0];
+  const baseline = getCurrentBaselineWindow(currentMinutes, events);
+  const baselineEvents = getEventsForBaseline(events, baseline);
+  const firstSignal = baselineEvents[0];
+  const baselineStart = parseClockToMinutes(baseline.start);
+  const observeAfter = parseClockToMinutes(baseline.observeAfter);
+  const cautionAfter = parseClockToMinutes(baseline.cautionAfter);
+  const expectedEnd = parseClockToMinutes(baseline.window.split("-")[1]!);
 
-  if (!firstMorning) {
-    if (currentMinutes >= parseClockToMinutes(morningBaseline.cautionAfter)) {
+  if (!firstSignal) {
+    if (currentMinutes >= cautionAfter) {
       return {
         severity: "caution",
         statusLabel: "확인 필요",
-        baselineText: `개인 기준선 ${morningBaseline.window}`,
-        currentText: "아침 생활 리듬이 아직 확인되지 않았습니다",
+        baselineText: `개인 기준선 ${baseline.window}`,
+        currentText: `${baseline.label}이 아직 확인되지 않았습니다`,
         reasonSummary:
-          "평소 아침 활동이 시작되는 시간대가 지났지만 관련 생활 신호가 아직 요약되지 않았습니다.",
-        recentSignal: "예상 시간대 이후에도 아침 생활 리듬 미확인",
+          `${baseline.label} 기준선의 확인 필요 구간이 지났지만 관련 생활 신호가 아직 요약되지 않았습니다.`,
+        recentSignal: `${baseline.label} 생활 리듬 미확인`,
         lateConfirmed: false,
-        deltaMinutes:
-          currentMinutes - parseClockToMinutes(morningBaseline.cautionAfter),
+        deltaMinutes: currentMinutes - cautionAfter,
         gaugeValue: 84
       };
     }
 
-    if (currentMinutes >= parseClockToMinutes(morningBaseline.observeAfter)) {
+    if (currentMinutes >= observeAfter) {
       return {
         severity: "watch",
         statusLabel: "관찰",
-        baselineText: `개인 기준선 ${morningBaseline.window}`,
-        currentText: "아침 생활 리듬이 평소보다 늦어질 수 있습니다",
+        baselineText: `개인 기준선 ${baseline.window}`,
+        currentText: `${baseline.label}이 평소보다 늦어질 수 있습니다`,
         reasonSummary:
-          "아침 활동 기준선의 여유 구간을 지나고 있어 조용히 관찰하는 상태입니다.",
-        recentSignal: "아침 생활 리듬 관찰 중",
+          `${baseline.label} 기준선의 여유 구간을 지나고 있어 조용히 관찰하는 상태입니다.`,
+        recentSignal: `${baseline.label} 관찰 중`,
         lateConfirmed: false,
-        deltaMinutes:
-          currentMinutes - parseClockToMinutes(morningBaseline.observeAfter),
+        deltaMinutes: currentMinutes - observeAfter,
         gaugeValue: 54
       };
     }
@@ -169,10 +210,13 @@ export function detectAnomaly(
     return {
       severity: "normal",
       statusLabel: "안정",
-      baselineText: `개인 기준선 ${morningBaseline.window}`,
-      currentText: "아침 생활 리듬이 기준선 범위 안에 있습니다",
+      baselineText: `개인 기준선 ${baseline.window}`,
+      currentText:
+        currentMinutes < baselineStart
+          ? `${baseline.label} 예정`
+          : `${baseline.label}이 기준선 범위 안에 있습니다`,
       reasonSummary:
-        "아직 평소 아침 활동이 시작되는 시간대 안에 있어 별도 확인이 필요하지 않습니다.",
+        "아직 평소 생활 리듬 기준선 안에 있어 별도 확인이 필요하지 않습니다.",
       recentSignal: "조용한 대기 상태",
       lateConfirmed: false,
       deltaMinutes: 0,
@@ -180,18 +224,18 @@ export function detectAnomaly(
     };
   }
 
-  const firstMorningMinutes = parseClockToMinutes(firstMorning.time);
-  const deltaFromExpected = firstMorningMinutes - parseClockToMinutes("08:20");
+  const firstSignalMinutes = parseClockToMinutes(firstSignal.time);
+  const deltaFromExpected = firstSignalMinutes - expectedEnd;
 
-  if (deltaFromExpected > 40) {
+  if (firstSignalMinutes >= cautionAfter || deltaFromExpected > 40) {
     return {
       severity: "watch",
       statusLabel: "관찰",
-      baselineText: `개인 기준선 ${morningBaseline.window}`,
-      currentText: "늦게 확인됨",
+      baselineText: `개인 기준선 ${baseline.window}`,
+      currentText: `${baseline.label} 늦게 확인됨`,
       reasonSummary:
-        "아침 생활 리듬이 늦게 확인되어 직접 확인 필요 상태에서는 내려왔지만, 오늘 변화는 계속 관찰합니다.",
-      recentSignal: "아침 생활 리듬 늦게 확인됨",
+        `${baseline.label} 생활 리듬이 늦게 확인되어 직접 확인 필요 상태에서는 내려왔지만, 오늘 변화는 계속 관찰합니다.`,
+      recentSignal: `${baseline.label} 늦게 확인됨`,
       lateConfirmed: true,
       deltaMinutes: deltaFromExpected,
       gaugeValue: Math.min(68, 46 + Math.round(deltaFromExpected / 5))
@@ -199,26 +243,12 @@ export function detectAnomaly(
   }
 
   const latest = events[events.length - 1];
-  if (latest.phase === "night") {
-    return {
-      severity: "watch",
-      statusLabel: "관찰",
-      baselineText: "개인 기준선 21:30-22:30",
-      currentText: "취침 전 생활 리듬 변화가 요약됨",
-      reasonSummary:
-        "취침 전 시간대의 생활 흐름이 평소보다 조금 길어져 관찰 상태로 표시합니다.",
-      recentSignal: "취침 전 생활 리듬 변화",
-      lateConfirmed: false,
-      deltaMinutes: 18,
-      gaugeValue: 42
-    };
-  }
 
   return {
     severity: "normal",
     statusLabel: "안정",
-    baselineText: "개인 기준선 범위와 일치",
-    currentText: "생활 흐름이 안정적으로 요약됨",
+    baselineText: `개인 기준선 ${baseline.window}`,
+    currentText: `${baseline.label}이 안정적으로 요약됨`,
     reasonSummary:
       "오늘 생활 리듬은 개인 기준선과 큰 차이 없이 이어지고 있습니다.",
     recentSignal: privacySafeSignalLabel(latest),
@@ -226,6 +256,44 @@ export function detectAnomaly(
     deltaMinutes: 0,
     gaugeValue: 20 + Math.min(events.length * 4, 18)
   };
+}
+
+export function getBaselineProgress(
+  events: ApplianceEvent[],
+  currentMinutes: number
+): BaselineProgress[] {
+  const currentBaseline = getCurrentBaselineWindow(currentMinutes, events);
+
+  return personalBaselineWindows.map((baseline) => {
+    const baselineEvents = getEventsForBaseline(events, baseline);
+    const start = parseClockToMinutes(baseline.start);
+    const observeAfter = parseClockToMinutes(baseline.observeAfter);
+    const cautionAfter = parseClockToMinutes(baseline.cautionAfter);
+    const end = parseClockToMinutes(baseline.end);
+    const hasSignal = baselineEvents.length > 0;
+    let status: BaselineProgressStatus = "scheduled";
+
+    if (hasSignal) {
+      status = "confirmed";
+    } else if (currentMinutes >= cautionAfter && currentMinutes <= end) {
+      status = "needsCheck";
+    } else if (currentMinutes >= observeAfter && currentMinutes <= end) {
+      status = "watch";
+    } else if (currentMinutes >= start && currentMinutes <= end) {
+      status = "inProgress";
+    } else if (currentMinutes > end) {
+      status = "needsCheck";
+    }
+
+    return {
+      baseline,
+      status,
+      isCurrent: baseline.id === currentBaseline.id,
+      recentSignal: hasSignal
+        ? privacySafeSignalLabel(baselineEvents[baselineEvents.length - 1])
+        : "요약된 생활 신호 없음"
+    };
+  });
 }
 
 export function generateGuardianReport(
@@ -242,9 +310,9 @@ export function generateGuardianReport(
   if (anomaly.severity === "caution") {
     if (role === "socialWorker") {
       return {
-        title: "오전 루틴 확인 필요",
+        title: "생활 리듬 확인 필요",
         message:
-          "개인 기준선 대비 오전 생활 리듬 지연이 확인되었습니다. 전화 확인 또는 방문 우선순위 검토가 권장됩니다.",
+          "개인 기준선 대비 생활 리듬 변화가 확인되었습니다. 전화 확인 또는 방문 우선순위 검토가 권장됩니다.",
         tone: "alert",
         recommendedAction: "전화 확인",
         notificationLabel: "케이스 확인 권장"
@@ -252,9 +320,9 @@ export function generateGuardianReport(
     }
 
     return {
-      title: "아침 리듬 확인 필요",
+      title: "생활 리듬 확인 필요",
       message:
-        "오늘 아침 생활 리듬이 평소보다 늦게 시작된 것으로 보여요. 가볍게 안부를 확인해보세요.",
+        "오늘 생활 리듬이 평소와 달라 보입니다. 가볍게 안부를 확인해보세요.",
       tone: "alert",
       recommendedAction: "전화하기",
       notificationLabel: "안부 확인 권장"
@@ -264,9 +332,9 @@ export function generateGuardianReport(
   if (anomaly.lateConfirmed) {
     if (role === "socialWorker") {
       return {
-        title: "늦게 확인된 오전 리듬",
+        title: "늦게 확인된 생활 리듬",
         message:
-          "오전 생활 리듬이 지연 후 확인되었습니다. 현재는 관찰 상태이며 케이스 메모로 오늘 변화를 남길 수 있습니다.",
+          "생활 리듬이 지연 후 확인되었습니다. 현재는 관찰 상태이며 케이스 메모로 오늘 변화를 남길 수 있습니다.",
         tone: "warm",
         recommendedAction: "케이스 메모",
         notificationLabel: "관찰 기록"
@@ -274,9 +342,9 @@ export function generateGuardianReport(
     }
 
     return {
-      title: "늦게 확인된 아침 리듬",
+      title: "늦게 확인된 생활 리듬",
       message:
-        "아침 생활 리듬이 조금 늦게 확인되었어요. 지금은 관찰 상태로 내려왔지만 오늘 변화는 기록해둘게요.",
+        "생활 리듬이 조금 늦게 확인되었어요. 지금은 관찰 상태로 내려왔지만 오늘 변화는 기록해둘게요.",
       tone: "warm",
       recommendedAction: "가족 메모",
       notificationLabel: "관찰 기록"
@@ -346,9 +414,9 @@ function generateEnglishGuardianReport(
   if (anomaly.severity === "caution") {
     if (role === "socialWorker") {
       return {
-        title: "Morning routine needs review",
+        title: "Living rhythm needs review",
         message:
-          "The morning living rhythm is delayed against the personal baseline. A phone check or visit-priority review is recommended.",
+          "The living rhythm changed against the personal baseline. A phone check or visit-priority review is recommended.",
         tone: "alert",
         recommendedAction: "Phone check",
         notificationLabel: "Case check recommended"
@@ -356,9 +424,9 @@ function generateEnglishGuardianReport(
     }
 
     return {
-      title: "Morning rhythm needs check",
+      title: "Living rhythm needs check",
       message:
-        "Today's morning rhythm appears to have started later than usual. A light check-in may be helpful.",
+        "Today's living rhythm looks different from usual. A light check-in may be helpful.",
       tone: "alert",
       recommendedAction: "Call",
       notificationLabel: "Check-in recommended"
@@ -368,9 +436,9 @@ function generateEnglishGuardianReport(
   if (anomaly.lateConfirmed) {
     if (role === "socialWorker") {
       return {
-        title: "Morning rhythm confirmed late",
+        title: "Living rhythm confirmed late",
         message:
-          "The morning rhythm was confirmed after a delay. It is now in watch state, and today's change can be added to the case note.",
+          "The living rhythm was confirmed after a delay. It is now in watch state, and today's change can be added to the case note.",
         tone: "warm",
         recommendedAction: "Case note",
         notificationLabel: "Watch record"
@@ -378,9 +446,9 @@ function generateEnglishGuardianReport(
     }
 
     return {
-      title: "Morning rhythm confirmed late",
+      title: "Living rhythm confirmed late",
       message:
-        "The morning rhythm was confirmed a little late. It is now in watch state, and GentleSight will keep today's change in the record.",
+        "The living rhythm was confirmed a little late. It is now in watch state, and GentleSight will keep today's change in the record.",
       tone: "warm",
       recommendedAction: "Family note",
       notificationLabel: "Watch record"
@@ -450,6 +518,52 @@ function clampConfidence(value: number) {
   return Math.max(0, Math.min(96, value));
 }
 
+function getCurrentBaselineWindow(
+  currentMinutes: number,
+  events: ApplianceEvent[] = []
+) {
+  const minutesInDay = currentMinutes % (24 * 60);
+  const activeBaselines = personalBaselineWindows.filter((baseline) => {
+    const start = parseClockToMinutes(baseline.start);
+    const end = parseClockToMinutes(baseline.end);
+
+    return minutesInDay >= start && minutesInDay <= end;
+  });
+  const confirmedActiveBaseline = activeBaselines.find(
+    (baseline) => getEventsForBaseline(events, baseline).length > 0
+  );
+  const activeBaseline = confirmedActiveBaseline ?? activeBaselines[0];
+
+  if (activeBaseline) {
+    return activeBaseline;
+  }
+
+  return (
+    personalBaselineWindows.find(
+      (baseline) => minutesInDay < parseClockToMinutes(baseline.start)
+    ) ?? personalBaselineWindows[personalBaselineWindows.length - 1]!
+  );
+}
+
+function getEventsForBaseline(
+  events: ApplianceEvent[],
+  baseline: BaselineWindow
+) {
+  const start = parseClockToMinutes(baseline.start);
+  const end = parseClockToMinutes(baseline.end);
+
+  return events.filter((event) => {
+    const eventMinutes = parseClockToMinutes(event.time);
+    const matchesWindow = eventMinutes >= start && eventMinutes <= end;
+    const matchesSignal =
+      baseline.expectedSignal === "any" ||
+      event.adlSignal === baseline.expectedSignal ||
+      (baseline.expectedSignal === "rest" && event.adlSignal === "idle");
+
+    return event.phase === baseline.phase && matchesWindow && matchesSignal;
+  });
+}
+
 export function privacySafeSignalLabel(event?: ApplianceEvent) {
   if (!event) {
     return "요약된 생활 신호 없음";
@@ -457,6 +571,20 @@ export function privacySafeSignalLabel(event?: ApplianceEvent) {
 
   if (event.phase === "morning" && event.adlSignal === "meal") {
     return "아침 식사 준비 관련 생활 신호";
+  }
+
+  if (event.phase === "noon") {
+    return event.adlSignal === "meal"
+      ? "점심 전후 활동 관련 생활 신호"
+      : "낮 휴식 관련 생활 신호";
+  }
+
+  if (event.phase === "evening") {
+    return "저녁 생활 리듬 관련 생활 신호";
+  }
+
+  if (event.phase === "night") {
+    return "취침 전 안정 관련 생활 신호";
   }
 
   if (event.adlSignal === "rest") {

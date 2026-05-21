@@ -24,6 +24,7 @@ import {
 
 type MobileGuardianDashboardProps = {
   report: GuardianReport;
+  isReportLoading: boolean;
   adlState: ADLState;
   anomaly: AnomalyResult;
   hasSignal: boolean;
@@ -34,6 +35,7 @@ type MobileGuardianDashboardProps = {
 
 export function MobileGuardianDashboard({
   report,
+  isReportLoading,
   adlState,
   anomaly,
   hasSignal,
@@ -41,9 +43,13 @@ export function MobileGuardianDashboard({
   role,
   onRoleChange
 }: MobileGuardianDashboardProps) {
-  const typedMessage = useTypedMessage(report.message);
   const [showReason, setShowReason] = useState(false);
   const t = copy[language];
+  const reportTitle = isReportLoading ? t.reportGeneratingTitle : report.title;
+  const reportMessage = isReportLoading
+    ? t.reportGeneratingMessage
+    : report.message;
+  const typedMessage = useTypedMessage(reportMessage);
 
   useEffect(() => {
     setShowReason(false);
@@ -59,14 +65,22 @@ export function MobileGuardianDashboard({
           <p>{t.roleDescription}</p>
 
           <div className="mobileRoleGrid">
-            <button type="button" onClick={() => onRoleChange("family")}>
+            <button
+              className="familyRoleOption"
+              type="button"
+              onClick={() => onRoleChange("family")}
+            >
               <HeartHandshake aria-hidden="true" size={24} />
               <span>
                 <strong>{t.familyRole}</strong>
                 <small>{t.familyRoleHint}</small>
               </span>
             </button>
-            <button type="button" onClick={() => onRoleChange("socialWorker")}>
+            <button
+              className="socialWorkerRoleOption"
+              type="button"
+              onClick={() => onRoleChange("socialWorker")}
+            >
               <BriefcaseBusiness aria-hidden="true" size={24} />
               <span>
                 <strong>{t.socialWorkerRole}</strong>
@@ -80,12 +94,15 @@ export function MobileGuardianDashboard({
   }
 
   return (
-    <section className="mobileGuardianView" aria-labelledby="mobile-report-title">
+    <section
+      className={`mobileGuardianView role-${role}`}
+      aria-labelledby="mobile-report-title"
+    >
       <div className="mobileGuardianReportPane">
         <div className="mobileGuardianHeader">
           <div>
             <p className="eyebrow">{t.liveReport}</p>
-            <h2 id="mobile-report-title">{report.title}</h2>
+            <h2 id="mobile-report-title">{reportTitle}</h2>
           </div>
           <span className={`statusPill ${report.tone}`}>
             {toneLabels[language][report.tone]}
@@ -94,9 +111,29 @@ export function MobileGuardianDashboard({
 
         <div className="mobileReportBubble" aria-live="polite">
           <BellRing aria-hidden="true" size={20} />
-          <p>{typedMessage}</p>
+          <div className="reportBubbleCopy">
+            <p>{typedMessage}</p>
+          </div>
           <span className="typingCursor" aria-hidden="true" />
         </div>
+
+        {!isReportLoading &&
+        (report.changeSummary || report.supportingSuggestion) ? (
+          <div className="mobileReportInsightGrid">
+            {report.changeSummary ? (
+              <article>
+                <span>{t.changeSummaryLabel}</span>
+                <p>{report.changeSummary}</p>
+              </article>
+            ) : null}
+            {report.supportingSuggestion ? (
+              <article>
+                <span>{t.supportingSuggestionLabel}</span>
+                <p>{report.supportingSuggestion}</p>
+              </article>
+            ) : null}
+          </div>
+        ) : null}
 
         <button className="mobileCallButton" type="button">
           <Phone aria-hidden="true" size={18} />
@@ -107,9 +144,14 @@ export function MobileGuardianDashboard({
       <aside className="mobileGuardianInsightPane">
         <div className="mobileGuardianToolbar">
           <span>GentleSight App</span>
-          <button type="button" onClick={() => onRoleChange(null)}>
-            {t.roleChange}
-          </button>
+          <div className="mobileRoleControls">
+            <span className={`roleCurrentPill ${role}`}>
+              {role === "socialWorker" ? t.socialWorkerRole : t.familyRole}
+            </span>
+            <button type="button" onClick={() => onRoleChange(null)}>
+              {t.roleChange}
+            </button>
+          </div>
         </div>
 
         <div className="mobileInsightGrid">

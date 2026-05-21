@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
@@ -125,6 +124,16 @@ function ProcessingLog({
 }) {
   const t = copy[language];
   const applianceLabel = getApplianceLabel(event.appliance, language);
+  const points = event.waveform
+    .map((value, index) => {
+      const x =
+        event.waveform.length > 1
+          ? (index / (event.waveform.length - 1)) * 100
+          : 0;
+      const y = 100 - Math.min(Math.max(value, 0), 100);
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
 
   return (
     <motion.div
@@ -160,15 +169,10 @@ function ProcessingLog({
         </div>
       </dl>
 
-      <div className="rawWaveform" aria-label={t.rawWaveformLabel}>
-        {event.waveform.map((value, index) => (
-          <span
-            key={`${event.id}-${index}`}
-            style={
-              { "--bar-height": `${Math.max(value, 8)}%` } as CSSProperties
-            }
-          />
-        ))}
+      <div className="rawWaveform lineWaveform" aria-label={t.rawWaveformLabel}>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img">
+          <polyline points={points} />
+        </svg>
       </div>
     </motion.div>
   );

@@ -24,6 +24,7 @@ import {
 
 type GuardianPhoneProps = {
   report: GuardianReport;
+  isReportLoading: boolean;
   adlState: ADLState;
   anomaly: AnomalyResult;
   hasSignal: boolean;
@@ -34,6 +35,7 @@ type GuardianPhoneProps = {
 
 export function GuardianPhone({
   report,
+  isReportLoading,
   adlState,
   anomaly,
   hasSignal,
@@ -41,9 +43,13 @@ export function GuardianPhone({
   role,
   onRoleChange
 }: GuardianPhoneProps) {
-  const typedMessage = useTypedMessage(report.message);
   const [showReason, setShowReason] = useState(false);
   const t = copy[language];
+  const reportTitle = isReportLoading ? t.reportGeneratingTitle : report.title;
+  const reportMessage = isReportLoading
+    ? t.reportGeneratingMessage
+    : report.message;
+  const typedMessage = useTypedMessage(reportMessage);
 
   useEffect(() => {
     setShowReason(false);
@@ -51,17 +57,22 @@ export function GuardianPhone({
 
   return (
     <section className="phonePanel" aria-labelledby="phone-title">
-      <div className="phoneFrame">
+      <div className={`phoneFrame ${role ? `role-${role}` : ""}`}>
         <div className="phoneTopBar">
           <span>GentleSight App</span>
           {role ? (
-            <button
-              className="roleChangeButton"
-              type="button"
-              onClick={() => onRoleChange(null)}
-            >
-              {t.roleChange}
-            </button>
+            <div className="phoneRoleControls">
+              <span className={`roleCurrentPill ${role}`}>
+                {role === "socialWorker" ? t.socialWorkerRole : t.familyRole}
+              </span>
+              <button
+                className="roleChangeButton"
+                type="button"
+                onClick={() => onRoleChange(null)}
+              >
+                {t.roleChange}
+              </button>
+            </div>
           ) : (
             <ShieldCheck aria-hidden="true" size={18} />
           )}
@@ -74,7 +85,7 @@ export function GuardianPhone({
             <div className="phoneStatus">
               <div>
                 <p className="eyebrow">{t.liveReport}</p>
-                <h2 id="phone-title">{report.title}</h2>
+                <h2 id="phone-title">{reportTitle}</h2>
               </div>
               <span className={`statusPill ${report.tone}`}>
                 {toneLabels[language][report.tone]}
@@ -83,9 +94,29 @@ export function GuardianPhone({
 
             <div className="reportBubble" aria-live="polite">
               <BellRing aria-hidden="true" size={20} />
-              <p>{typedMessage}</p>
+              <div className="reportBubbleCopy">
+                <p>{typedMessage}</p>
+              </div>
               <span className="typingCursor" aria-hidden="true" />
             </div>
+
+            {!isReportLoading &&
+            (report.changeSummary || report.supportingSuggestion) ? (
+              <div className="reportInsightStack">
+                {report.changeSummary ? (
+                  <article className="reportInsightCard">
+                    <span>{t.changeSummaryLabel}</span>
+                    <p>{report.changeSummary}</p>
+                  </article>
+                ) : null}
+                {report.supportingSuggestion ? (
+                  <article className="reportInsightCard suggestion">
+                    <span>{t.supportingSuggestionLabel}</span>
+                    <p>{report.supportingSuggestion}</p>
+                  </article>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="phoneMetrics">
               <div
@@ -183,14 +214,22 @@ function RoleSelection({
       </div>
 
       <div className="roleOptionList">
-        <button type="button" onClick={() => onSelect("family")}>
+        <button
+          className="familyRoleOption"
+          type="button"
+          onClick={() => onSelect("family")}
+        >
           <HeartHandshake aria-hidden="true" size={22} />
           <span>
             <strong>{t.familyRole}</strong>
             <small>{t.familyRoleHint}</small>
           </span>
         </button>
-        <button type="button" onClick={() => onSelect("socialWorker")}>
+        <button
+          className="socialWorkerRoleOption"
+          type="button"
+          onClick={() => onSelect("socialWorker")}
+        >
           <BriefcaseBusiness aria-hidden="true" size={22} />
           <span>
             <strong>{t.socialWorkerRole}</strong>
