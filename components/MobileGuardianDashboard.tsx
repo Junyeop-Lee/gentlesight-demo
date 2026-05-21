@@ -65,14 +65,22 @@ export function MobileGuardianDashboard({
           <p>{t.roleDescription}</p>
 
           <div className="mobileRoleGrid">
-            <button type="button" onClick={() => onRoleChange("family")}>
+            <button
+              className="familyRoleOption"
+              type="button"
+              onClick={() => onRoleChange("family")}
+            >
               <HeartHandshake aria-hidden="true" size={24} />
               <span>
                 <strong>{t.familyRole}</strong>
                 <small>{t.familyRoleHint}</small>
               </span>
             </button>
-            <button type="button" onClick={() => onRoleChange("socialWorker")}>
+            <button
+              className="socialWorkerRoleOption"
+              type="button"
+              onClick={() => onRoleChange("socialWorker")}
+            >
               <BriefcaseBusiness aria-hidden="true" size={24} />
               <span>
                 <strong>{t.socialWorkerRole}</strong>
@@ -86,7 +94,10 @@ export function MobileGuardianDashboard({
   }
 
   return (
-    <section className="mobileGuardianView" aria-labelledby="mobile-report-title">
+    <section
+      className={`mobileGuardianView role-${role}`}
+      aria-labelledby="mobile-report-title"
+    >
       <div className="mobileGuardianReportPane">
         <div className="mobileGuardianHeader">
           <div>
@@ -102,15 +113,27 @@ export function MobileGuardianDashboard({
           <BellRing aria-hidden="true" size={20} />
           <div className="reportBubbleCopy">
             <p>{typedMessage}</p>
-            {!isReportLoading && report.changeSummary ? (
-              <small>{report.changeSummary}</small>
-            ) : null}
-            {!isReportLoading && report.supportingSuggestion ? (
-              <small>{report.supportingSuggestion}</small>
-            ) : null}
           </div>
           <span className="typingCursor" aria-hidden="true" />
         </div>
+
+        {!isReportLoading &&
+        (report.changeSummary || report.supportingSuggestion) ? (
+          <div className="mobileReportInsightGrid">
+            {report.changeSummary ? (
+              <article>
+                <span>{t.changeSummaryLabel}</span>
+                <p>{report.changeSummary}</p>
+              </article>
+            ) : null}
+            {report.supportingSuggestion ? (
+              <article>
+                <span>{t.supportingSuggestionLabel}</span>
+                <p>{report.supportingSuggestion}</p>
+              </article>
+            ) : null}
+          </div>
+        ) : null}
 
         <button className="mobileCallButton" type="button">
           <Phone aria-hidden="true" size={18} />
@@ -121,9 +144,14 @@ export function MobileGuardianDashboard({
       <aside className="mobileGuardianInsightPane">
         <div className="mobileGuardianToolbar">
           <span>GentleSight App</span>
-          <button type="button" onClick={() => onRoleChange(null)}>
-            {t.roleChange}
-          </button>
+          <div className="mobileRoleControls">
+            <span className={`roleCurrentPill ${role}`}>
+              {role === "socialWorker" ? t.socialWorkerRole : t.familyRole}
+            </span>
+            <button type="button" onClick={() => onRoleChange(null)}>
+              {t.roleChange}
+            </button>
+          </div>
         </div>
 
         <div className="mobileInsightGrid">

@@ -57,17 +57,22 @@ export function GuardianPhone({
 
   return (
     <section className="phonePanel" aria-labelledby="phone-title">
-      <div className="phoneFrame">
+      <div className={`phoneFrame ${role ? `role-${role}` : ""}`}>
         <div className="phoneTopBar">
           <span>GentleSight App</span>
           {role ? (
-            <button
-              className="roleChangeButton"
-              type="button"
-              onClick={() => onRoleChange(null)}
-            >
-              {t.roleChange}
-            </button>
+            <div className="phoneRoleControls">
+              <span className={`roleCurrentPill ${role}`}>
+                {role === "socialWorker" ? t.socialWorkerRole : t.familyRole}
+              </span>
+              <button
+                className="roleChangeButton"
+                type="button"
+                onClick={() => onRoleChange(null)}
+              >
+                {t.roleChange}
+              </button>
+            </div>
           ) : (
             <ShieldCheck aria-hidden="true" size={18} />
           )}
@@ -91,15 +96,27 @@ export function GuardianPhone({
               <BellRing aria-hidden="true" size={20} />
               <div className="reportBubbleCopy">
                 <p>{typedMessage}</p>
-                {!isReportLoading && report.changeSummary ? (
-                  <small>{report.changeSummary}</small>
-                ) : null}
-                {!isReportLoading && report.supportingSuggestion ? (
-                  <small>{report.supportingSuggestion}</small>
-                ) : null}
               </div>
               <span className="typingCursor" aria-hidden="true" />
             </div>
+
+            {!isReportLoading &&
+            (report.changeSummary || report.supportingSuggestion) ? (
+              <div className="reportInsightStack">
+                {report.changeSummary ? (
+                  <article className="reportInsightCard">
+                    <span>{t.changeSummaryLabel}</span>
+                    <p>{report.changeSummary}</p>
+                  </article>
+                ) : null}
+                {report.supportingSuggestion ? (
+                  <article className="reportInsightCard suggestion">
+                    <span>{t.supportingSuggestionLabel}</span>
+                    <p>{report.supportingSuggestion}</p>
+                  </article>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="phoneMetrics">
               <div
@@ -197,14 +214,22 @@ function RoleSelection({
       </div>
 
       <div className="roleOptionList">
-        <button type="button" onClick={() => onSelect("family")}>
+        <button
+          className="familyRoleOption"
+          type="button"
+          onClick={() => onSelect("family")}
+        >
           <HeartHandshake aria-hidden="true" size={22} />
           <span>
             <strong>{t.familyRole}</strong>
             <small>{t.familyRoleHint}</small>
           </span>
         </button>
-        <button type="button" onClick={() => onSelect("socialWorker")}>
+        <button
+          className="socialWorkerRoleOption"
+          type="button"
+          onClick={() => onSelect("socialWorker")}
+        >
           <BriefcaseBusiness aria-hidden="true" size={22} />
           <span>
             <strong>{t.socialWorkerRole}</strong>

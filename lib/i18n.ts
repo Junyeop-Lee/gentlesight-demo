@@ -132,6 +132,8 @@ export const copy = {
     reportGeneratingTitle: "리포트 생성 중",
     reportGeneratingMessage:
       "생활 리듬 요약을 보호자 문구로 정리하고 있습니다.",
+    changeSummaryLabel: "변화 요약",
+    supportingSuggestionLabel: "권장 확인",
     roleChange: "역할 변경",
     viewMode: "View Mode",
     rolePrompt: "어떤 관점으로 확인하시나요?",
@@ -220,6 +222,8 @@ export const copy = {
     reportGeneratingTitle: "Generating report",
     reportGeneratingMessage:
       "GentleSight is turning the routine summary into guardian-facing copy.",
+    changeSummaryLabel: "Change summary",
+    supportingSuggestionLabel: "Suggested check",
     roleChange: "Change role",
     viewMode: "View Mode",
     rolePrompt: "Which perspective are you using?",
