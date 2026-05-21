@@ -72,6 +72,8 @@ export type InteractionSlot = {
 export type BaselineWindow = {
   id: string;
   label: string;
+  phase: RoutinePhase;
+  expectedSignal: ApplianceEvent["adlSignal"] | "any";
   window: string;
   start: string;
   observeAfter: string;
@@ -120,6 +122,8 @@ export const personalBaselineWindows: BaselineWindow[] = [
   {
     id: "morning-start",
     label: "아침 활동 시작",
+    phase: "morning",
+    expectedSignal: "wake",
     window: "07:50-08:20",
     start: "07:50",
     observeAfter: "08:40",
@@ -130,6 +134,8 @@ export const personalBaselineWindows: BaselineWindow[] = [
   {
     id: "breakfast",
     label: "아침 식사 준비",
+    phase: "morning",
+    expectedSignal: "meal",
     window: "08:00-08:40",
     start: "08:00",
     observeAfter: "08:50",
@@ -140,6 +146,8 @@ export const personalBaselineWindows: BaselineWindow[] = [
   {
     id: "late-morning-rest",
     label: "오전 휴식",
+    phase: "morning",
+    expectedSignal: "rest",
     window: "09:00-11:00",
     start: "09:00",
     observeAfter: "11:10",
@@ -150,6 +158,8 @@ export const personalBaselineWindows: BaselineWindow[] = [
   {
     id: "noon",
     label: "점심 전후 활동",
+    phase: "noon",
+    expectedSignal: "any",
     window: "11:30-12:30",
     start: "11:30",
     observeAfter: "12:45",
@@ -160,6 +170,8 @@ export const personalBaselineWindows: BaselineWindow[] = [
   {
     id: "evening",
     label: "저녁 루틴",
+    phase: "evening",
+    expectedSignal: "any",
     window: "18:30-20:00",
     start: "18:30",
     observeAfter: "20:15",
@@ -170,6 +182,8 @@ export const personalBaselineWindows: BaselineWindow[] = [
   {
     id: "night",
     label: "취침 전 안정",
+    phase: "night",
+    expectedSignal: "rest",
     window: "21:30-22:30",
     start: "21:30",
     observeAfter: "22:30",

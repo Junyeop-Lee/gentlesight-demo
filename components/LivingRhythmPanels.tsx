@@ -1,15 +1,18 @@
 import { Activity, CalendarClock, CircleAlert, HeartPulse } from "lucide-react";
 import {
-  personalBaselineWindows,
   type ADLState,
-  type AnomalyResult
+  type AnomalyResult,
+  type ApplianceEvent
 } from "@/data/routineDataset";
+import { getBaselineProgress } from "@/lib/nilmLogic";
 import {
   copy,
+  baselineProgressLabels,
   localizeAdlLabel,
   localizeAnomalyText,
   localizeBaselineLabel,
   localizeBaselineSummary,
+  localizeBaselineWindowLabel,
   statusLabels,
   type Language
 } from "@/lib/i18n";
@@ -17,7 +20,9 @@ import {
 type PanelProps = {
   adlState: ADLState;
   anomaly: AnomalyResult;
+  events: ApplianceEvent[];
   hasSignal: boolean;
+  currentMinutes: number;
   currentTimeLabel: string;
   language: Language;
 };
@@ -78,10 +83,19 @@ export function StatusPanel({
 
 export function BaselineComparisonPanel({
   anomaly,
+  events,
+  currentMinutes,
   currentTimeLabel,
   language
-}: Pick<PanelProps, "anomaly" | "currentTimeLabel" | "language">) {
+}: Pick<
+  PanelProps,
+  "anomaly" | "events" | "currentMinutes" | "currentTimeLabel" | "language"
+>) {
   const t = copy[language];
+  const baselineProgress = getBaselineProgress(events, currentMinutes);
+  const currentProgress =
+    baselineProgress.find((progress) => progress.isCurrent) ??
+    baselineProgress[0];
 
   return (
     <section className="livingPanel" aria-labelledby="comparison-panel-title">
@@ -95,7 +109,11 @@ export function BaselineComparisonPanel({
 
       <div className="baselineSummary">
         <span>{t.baselineReference}</span>
-        <strong>{localizeAnomalyText(anomaly.baselineText, language)}</strong>
+        <strong>
+          {currentProgress
+            ? localizeBaselineWindowLabel(currentProgress.baseline, language)
+            : t.personalBaseline}
+        </strong>
         <p>
           {currentTimeLabel} {t.currentStatusPrefix}{" "}
           {localizeAnomalyText(anomaly.currentText, language)}
@@ -103,11 +121,30 @@ export function BaselineComparisonPanel({
       </div>
 
       <div className="baselineList" aria-label={t.baselineListLabel}>
-        {personalBaselineWindows.map((baseline) => (
-          <div key={baseline.id}>
-            <strong>{localizeBaselineLabel(baseline, language)}</strong>
-            <span>{baseline.window}</span>
-            <p>{localizeBaselineSummary(baseline, language)}</p>
+        {baselineProgress.map((progress) => (
+          <div
+            key={progress.baseline.id}
+            className={progress.isCurrent ? "current" : undefined}
+            data-status={progress.status}
+          >
+            <div className="baselineListHeader">
+              <strong>{localizeBaselineLabel(progress.baseline, language)}</strong>
+              <span>{localizeBaselineWindowLabel(progress.baseline, language)}</span>
+            </div>
+            <span
+              className="baselineProgressPill"
+              aria-label={`${t.baselineProgressLabel}: ${
+                baselineProgressLabels[language][progress.status]
+              }`}
+            >
+              {baselineProgressLabels[language][progress.status]}
+            </span>
+            <p>{localizeBaselineSummary(progress.baseline, language)}</p>
+            {progress.status === "confirmed" ? (
+              <p className="baselineSignal">
+                {localizeAnomalyText(progress.recentSignal, language)}
+              </p>
+            ) : null}
           </div>
         ))}
       </div>

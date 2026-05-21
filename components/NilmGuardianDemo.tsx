@@ -450,6 +450,8 @@ export function NilmGuardianDemo() {
               ) : detailPanel === "comparison" ? (
                 <BaselineComparisonPanel
                   anomaly={anomaly}
+                  events={events}
+                  currentMinutes={currentMinutes}
                   currentTimeLabel={localizedTime}
                   language={language}
                 />
@@ -457,7 +459,9 @@ export function NilmGuardianDemo() {
                 <StatusPanel
                   adlState={adlState}
                   anomaly={anomaly}
+                  events={events}
                   hasSignal={Boolean(latestEvent)}
+                  currentMinutes={currentMinutes}
                   currentTimeLabel={localizedTime}
                   language={language}
                 />
@@ -576,6 +580,8 @@ export function NilmGuardianDemo() {
               ) : mobileInfoMode === "comparison" ? (
                 <BaselineComparisonPanel
                   anomaly={anomaly}
+                  events={events}
+                  currentMinutes={currentMinutes}
                   currentTimeLabel={localizedTime}
                   language={language}
                 />
@@ -583,7 +589,9 @@ export function NilmGuardianDemo() {
                 <StatusPanel
                   adlState={adlState}
                   anomaly={anomaly}
+                  events={events}
                   hasSignal={Boolean(latestEvent)}
+                  currentMinutes={currentMinutes}
                   currentTimeLabel={localizedTime}
                   language={language}
                 />

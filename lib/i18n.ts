@@ -34,6 +34,22 @@ const adlLabels: Record<string, string> = {
   "아침 생활 신호 미확인": "Morning routine not confirmed",
   "생활 리듬 대기": "Waiting for routine signals",
   "아침 식사 준비 중": "Breakfast preparation",
+  "아침 활동 시작 대기": "Waiting for morning activity start",
+  "아침 식사 준비 대기": "Waiting for breakfast preparation",
+  "오전 휴식 대기": "Waiting for late-morning rest",
+  "점심 전후 활동 대기": "Waiting for midday activity",
+  "저녁 루틴 대기": "Waiting for evening routine",
+  "취침 전 안정 대기": "Waiting for pre-sleep wind-down",
+  "아침 활동 시작 미확인": "Morning activity start not confirmed",
+  "아침 식사 준비 미확인": "Breakfast preparation not confirmed",
+  "오전 휴식 미확인": "Late-morning rest not confirmed",
+  "점심 전후 활동 미확인": "Midday activity not confirmed",
+  "저녁 루틴 미확인": "Evening routine not confirmed",
+  "취침 전 안정 미확인": "Pre-sleep wind-down not confirmed",
+  "오전 휴식": "Late-morning rest",
+  "점심 전후 활동": "Midday activity",
+  "낮 휴식": "Daytime rest",
+  "취침 전 안정": "Pre-sleep wind-down",
   "휴식 중": "Resting",
   "저녁 루틴": "Evening routine",
   "가사 활동": "Household activity",
@@ -73,6 +89,13 @@ const anomalyTexts: Record<string, string> = {
   "요약된 생활 신호 없음": "No summarized routine signal",
   "아침 식사 준비 관련 생활 신호":
     "Routine signal related to breakfast preparation",
+  "점심 전후 활동 관련 생활 신호":
+    "Routine signal related to midday activity",
+  "낮 휴식 관련 생활 신호": "Routine signal related to daytime rest",
+  "저녁 생활 리듬 관련 생활 신호":
+    "Routine signal related to the evening rhythm",
+  "취침 전 안정 관련 생활 신호":
+    "Routine signal related to pre-sleep wind-down",
   "휴식 관련 생활 신호": "Routine signal related to rest",
   "가사 활동 관련 생활 신호": "Routine signal related to household activity",
   "활동 시작 관련 생활 신호": "Routine signal related to activity start",
@@ -101,6 +124,15 @@ const baselineSummaries: Record<string, string> = {
     "The evening baseline combines meal-related and rest-related patterns.",
   "취침 전에는 생활 리듬이 조용해지는 흐름이 기준선입니다.":
     "Before sleep, the baseline rhythm usually becomes quieter."
+};
+
+const baselineWindowLabels: Record<string, string> = {
+  "아침 활동 시작": "usual morning activity window",
+  "아침 식사 준비": "usual breakfast-preparation range",
+  "오전 휴식": "usual late-morning rest range",
+  "점심 전후 활동": "usual midday activity range",
+  "저녁 루틴": "usual evening routine range",
+  "취침 전 안정": "usual pre-sleep wind-down range"
 };
 
 export const copy = {
@@ -154,7 +186,7 @@ export const copy = {
     anonymizedDone: "익명 요약 처리 완료",
     anonymizedWaiting: "익명 요약 대기",
     noRawDeviceInfo: "개별 기기명과 원천 신호는 표시하지 않습니다.",
-    phoneReasonFamilyTitle: "평소와 달라진 아침 리듬 때문입니다.",
+    phoneReasonFamilyTitle: "평소와 달라진 생활 리듬 때문입니다.",
     phoneReasonWorkerTitle: "개인 기준선 대비 확인이 필요합니다.",
     phoneReasonFamilyCopy:
       "개별 기기 사용 여부가 아니라 생활 리듬 변화만 보고 가볍게 안부를 확인하도록 권합니다.",
@@ -168,6 +200,7 @@ export const copy = {
     baselineReference: "개인 기준선 기준",
     currentStatusPrefix: "현재 상태:",
     baselineListLabel: "최근 28일 생활 리듬 기준선",
+    baselineProgressLabel: "진행 상태",
     privacyLayer: "Privacy Layer",
     privacyPromiseTitle:
       "GentleSight는 생활을 감시하지 않고 변화만 요약합니다.",
@@ -244,7 +277,7 @@ export const copy = {
     anonymizedDone: "Anonymous summary ready",
     anonymizedWaiting: "Waiting for anonymous summary",
     noRawDeviceInfo: "Device names and raw signals are not shown.",
-    phoneReasonFamilyTitle: "The morning rhythm changed from usual.",
+    phoneReasonFamilyTitle: "The living rhythm changed from usual.",
     phoneReasonWorkerTitle: "A check is needed against the personal baseline.",
     phoneReasonFamilyCopy:
       "GentleSight recommends a light check-in based only on rhythm change, not individual device use.",
@@ -258,6 +291,7 @@ export const copy = {
     baselineReference: "Personal baseline reference",
     currentStatusPrefix: "Current status:",
     baselineListLabel: "28-day living-rhythm baseline",
+    baselineProgressLabel: "Progress status",
     privacyLayer: "Privacy Layer",
     privacyPromiseTitle:
       "GentleSight summarizes change without monitoring daily life.",
@@ -312,6 +346,26 @@ export const toneLabels: Record<Language, Record<"calm" | "warm" | "alert", stri
   }
 };
 
+export const baselineProgressLabels: Record<
+  Language,
+  Record<"scheduled" | "inProgress" | "confirmed" | "watch" | "needsCheck", string>
+> = {
+  ko: {
+    scheduled: "예정",
+    inProgress: "진행 중",
+    confirmed: "확인됨",
+    watch: "관찰",
+    needsCheck: "확인 필요"
+  },
+  en: {
+    scheduled: "Scheduled",
+    inProgress: "In progress",
+    confirmed: "Confirmed",
+    watch: "Watch",
+    needsCheck: "Needs check"
+  }
+};
+
 export function getApplianceLabel(applianceId: ApplianceId, language: Language) {
   return applianceLabels[language][applianceId];
 }
@@ -344,6 +398,11 @@ export function localizeAnomalyText(text: string, language: Language) {
     return text.replace("개인 기준선 ", "Personal baseline ");
   }
 
+  const dynamicTranslation = translateDynamicAnomalyText(text);
+  if (dynamicTranslation) {
+    return dynamicTranslation;
+  }
+
   return anomalyTexts[text] ?? text;
 }
 
@@ -369,6 +428,29 @@ export function getPrivacySafeSignalLabel(
 
   if (event.phase === "morning" && event.adlSignal === "meal") {
     return localizeAnomalyText("아침 식사 준비 관련 생활 신호", language);
+  }
+
+  if (event.phase === "noon") {
+    return localizeAnomalyText(
+      event.adlSignal === "meal"
+        ? "점심 전후 활동 관련 생활 신호"
+        : "낮 휴식 관련 생활 신호",
+      language
+    );
+  }
+
+  if (event.phase === "evening") {
+    return localizeAnomalyText(
+      "저녁 생활 리듬 관련 생활 신호",
+      language
+    );
+  }
+
+  if (event.phase === "night") {
+    return localizeAnomalyText(
+      "취침 전 안정 관련 생활 신호",
+      language
+    );
   }
 
   if (event.adlSignal === "rest") {
@@ -408,6 +490,17 @@ export function localizeBaselineSummary(
   return baselineSummaries[baseline.summary] ?? baseline.summary;
 }
 
+export function localizeBaselineWindowLabel(
+  baseline: BaselineWindow,
+  language: Language
+) {
+  if (language === "ko") {
+    return `평소 ${baseline.label} 범위`;
+  }
+
+  return baselineWindowLabels[baseline.label] ?? "usual routine range";
+}
+
 export function getRoutineStateForAi(adlState: ADLState, language: Language) {
   return localizeAdlLabel(adlState, language);
 }
@@ -418,4 +511,71 @@ export function getRoleLabel(role: GuardianRole, language: Language) {
   }
 
   return copy[language].familyRole;
+}
+
+function translateDynamicAnomalyText(text: string) {
+  const baselineEntry = Object.entries(baselineLabels).find(([label]) =>
+    text.includes(label)
+  );
+
+  if (!baselineEntry) {
+    return null;
+  }
+
+  const [koreanLabel, englishLabel] = baselineEntry;
+
+  if (text === `${koreanLabel} 예정`) {
+    return `${englishLabel} scheduled`;
+  }
+
+  if (text === `${koreanLabel}이 아직 확인되지 않았습니다`) {
+    return `${englishLabel} has not been confirmed yet`;
+  }
+
+  if (text === `${koreanLabel}이 평소보다 늦어질 수 있습니다`) {
+    return `${englishLabel} may be later than usual`;
+  }
+
+  if (text === `${koreanLabel}이 기준선 범위 안에 있습니다`) {
+    return `${englishLabel} is within the baseline window`;
+  }
+
+  if (text === `${koreanLabel}이 안정적으로 요약됨`) {
+    return `${englishLabel} is summarized as stable`;
+  }
+
+  if (text === `${koreanLabel} 늦게 확인됨`) {
+    return `${englishLabel} confirmed late`;
+  }
+
+  if (text === `${koreanLabel} 관찰 중`) {
+    return `Observing ${englishLabel.toLowerCase()}`;
+  }
+
+  if (text === `${koreanLabel} 생활 리듬 미확인`) {
+    return `${englishLabel} rhythm not confirmed`;
+  }
+
+  if (
+    text ===
+    `${koreanLabel} 기준선의 확인 필요 구간이 지났지만 관련 생활 신호가 아직 요약되지 않았습니다.`
+  ) {
+    return `The needs-check point for ${englishLabel.toLowerCase()} has passed, but related routine signals have not been summarized yet.`;
+  }
+
+  if (
+    text ===
+    `${koreanLabel} 기준선의 여유 구간을 지나고 있어 조용히 관찰하는 상태입니다.`
+  ) {
+    return `The ${englishLabel.toLowerCase()} baseline buffer has passed, so GentleSight is quietly observing.`;
+  }
+
+  if (
+    text ===
+    `${koreanLabel} 생활 리듬이 늦게 확인되어 직접 확인 필요 상태에서는 내려왔지만, 오늘 변화는 계속 관찰합니다.`
+  ) {
+    return `The ${englishLabel.toLowerCase()} rhythm was confirmed late, so it is no longer in direct check-needed state, but today's change remains under observation.`;
+  }
+
+  return null;
 }

@@ -2288,6 +2288,31 @@ h1 {
     white-space: nowrap;
   }
 
+  @media (max-width: 700px) and (orientation: landscape) {
+    .mobileModeHeader {
+      grid-template-columns: minmax(92px, 0.42fr) minmax(0, 0.35fr) minmax(220px, 1fr);
+      gap: 5px;
+      padding: 5px 6px;
+    }
+
+    .mobileModeHeader h2 {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.78rem;
+    }
+
+    .mobileBackButton {
+      padding: 0 9px;
+    }
+
+    .mobileModeTabs button {
+      padding: 0 5px;
+      font-size: 0.62rem;
+    }
+  }
+
   .mobileModeContent {
     display: grid;
     grid-template-rows: minmax(0, 1fr);
@@ -2715,10 +2740,14 @@ h1 {
     padding-right: 0;
   }
 
-  .mobileModeContent .baselineList div {
+  .mobileModeContent .baselineList > div {
     grid-template-columns: 1fr;
     gap: 4px;
     padding: 9px;
+  }
+
+  .mobileModeContent .baselineSignal {
+    grid-column: auto;
   }
 
   .mobileModeContent .baselineList strong,
@@ -2908,9 +2937,9 @@ h1 {
   overflow: auto;
 }
 
-.baselineList div {
+.baselineList > div {
   display: grid;
-  grid-template-columns: minmax(130px, 0.7fr) minmax(94px, 0.46fr) minmax(0, 1fr);
+  grid-template-columns: minmax(150px, 0.72fr) minmax(92px, 0.38fr) minmax(0, 1fr);
   gap: 10px;
   align-items: start;
   padding: 11px 12px;
@@ -2919,14 +2948,47 @@ h1 {
   background: rgba(255, 255, 255, 0.72);
 }
 
+.baselineList > div.current {
+  border-color: rgba(47, 157, 132, 0.42);
+  background: rgba(239, 250, 246, 0.92);
+}
+
+.baselineList > div[data-status="watch"],
+.baselineList > div[data-status="needsCheck"] {
+  border-color: rgba(210, 122, 68, 0.38);
+  background: rgba(255, 248, 239, 0.92);
+}
+
+.baselineListHeader {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
 .baselineList strong,
 .baselineList span {
   line-height: 1.35;
   font-weight: 950;
 }
 
-.baselineList span {
+.baselineListHeader span {
   color: #2f6b5f;
+}
+
+.baselineProgressPill {
+  justify-self: start;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #28564d;
+  background: rgba(47, 157, 132, 0.13);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.baselineList > div[data-status="watch"] .baselineProgressPill,
+.baselineList > div[data-status="needsCheck"] .baselineProgressPill {
+  color: #8b4a21;
+  background: rgba(210, 122, 68, 0.16);
 }
 
 .baselineList p {
@@ -2934,6 +2996,11 @@ h1 {
   color: var(--muted);
   font-size: 0.84rem;
   line-height: 1.45;
+}
+
+.baselineSignal {
+  grid-column: 3;
+  color: #2f6b5f !important;
 }
 
 .roleChangeButton,
@@ -3185,11 +3252,15 @@ h1 {
 
 @media (max-width: 720px) {
   .livingPanelGrid,
-  .baselineList div,
+  .baselineList > div,
   .privacyContent.expanded,
   .privacyPromiseGrid,
   .processingLog.rawDataPanel dl {
     grid-template-columns: 1fr;
+  }
+
+  .baselineSignal {
+    grid-column: auto;
   }
 }
 
