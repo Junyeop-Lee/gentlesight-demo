@@ -100,6 +100,7 @@ export function PipelineVisualizer({
 }
 
 const severityLabel: Record<AnomalyResult["severity"], string> = {
+  pending: "예정",
   normal: "정상",
   watch: "관찰",
   caution: "주의"

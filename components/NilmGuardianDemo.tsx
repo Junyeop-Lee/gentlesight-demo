@@ -465,17 +465,21 @@ export function NilmGuardianDemo() {
           <div className="demoInputHint" aria-live="polite">
             <span>{t.livingSignalSimulation}</span>
             {messageAnomaly.severity === anomaly.severity ? (
-              <span className={`demoStatusPill ${severityToTone(anomaly.severity)}`}>
-                {statusLabels[language][anomaly.severity]}
-              </span>
+              anomaly.severity !== "pending" ? (
+                <span className={`demoStatusPill ${severityToTone(anomaly.severity)}`}>
+                  {statusLabels[language][anomaly.severity]}
+                </span>
+              ) : null
             ) : (
               <>
                 <span className={`demoStatusPill ${severityToTone(messageAnomaly.severity)}`}>
                   {t.overallStatusLabel} {statusLabels[language][messageAnomaly.severity]}
                 </span>
-                <span className={`demoStatusPill ${severityToTone(anomaly.severity)}`}>
-                  {t.nowStatusLabel} {statusLabels[language][anomaly.severity]}
-                </span>
+                {anomaly.severity !== "pending" && (
+                  <span className={`demoStatusPill ${severityToTone(anomaly.severity)}`}>
+                    {t.nowStatusLabel} {statusLabels[language][anomaly.severity]}
+                  </span>
+                )}
               </>
             )}
           </div>

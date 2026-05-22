@@ -29,8 +29,8 @@ export type ADLState = {
 };
 
 export type AnomalyResult = {
-  severity: "normal" | "watch" | "caution";
-  statusLabel: "안정" | "관찰" | "확인 필요";
+  severity: "pending" | "normal" | "watch" | "caution";
+  statusLabel: "예정" | "안정" | "관찰" | "확인 필요";
   baselineText: string;
   currentText: string;
   reasonSummary: string;

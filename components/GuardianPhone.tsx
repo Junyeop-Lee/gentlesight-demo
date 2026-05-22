@@ -120,9 +120,11 @@ export function GuardianPhone({
                   <span className={`statusPill ${severityToTone(anomaly.severity)}`}>
                     {t.overallStatusLabel} {statusLabels[language][anomaly.severity]}
                   </span>
-                  <span className={`statusPill ${severityToTone(currentAnomaly.severity)}`}>
-                    {t.nowStatusLabel} {statusLabels[language][currentAnomaly.severity]}
-                  </span>
+                  {currentAnomaly.severity !== "pending" && (
+                    <span className={`statusPill ${severityToTone(currentAnomaly.severity)}`}>
+                      {t.nowStatusLabel} {statusLabels[language][currentAnomaly.severity]}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
