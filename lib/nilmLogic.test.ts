@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   createApplianceEvent,
   detectAnomaly,
+  generateGuardianReport,
   getBaselineProgress,
-  inferAdlState
+  inferAdlState,
+  selectGuardianMessageContext,
+  selectGuardianMessageAnomaly
 } from "@/lib/nilmLogic";
+import { buildPrivacySafeAiInput } from "@/lib/privacySafeAi";
 import { parseClockToMinutes } from "@/lib/simulationClock";
 
 function at(clock: string) {
@@ -147,5 +151,144 @@ describe("full-day routine interpretation", () => {
       recentSignal: "취침 전 안정 관련 생활 신호"
     });
     expect(progressById(progress, "evening").status).toBe("needsCheck");
+  });
+});
+
+describe("guardian message priority", () => {
+  it("keeps the first morning caution as the message target when a nearby breakfast signal would otherwise take over", () => {
+    const events = [createApplianceEvent("microwave", 0, "08:18", 1)];
+
+    const currentAnomaly = detectAnomaly(events, at("09:12"));
+    const messageAnomaly = selectGuardianMessageAnomaly(events, at("09:12"));
+
+    expect(currentAnomaly).toMatchObject({
+      severity: "normal",
+      currentText: "아침 식사 준비이 안정적으로 요약됨"
+    });
+    expect(messageAnomaly).toMatchObject({
+      severity: "caution",
+      currentText: "아침 활동 시작이 아직 확인되지 않았습니다",
+      recentSignal: "아침 활동 시작 생활 리듬 미확인"
+    });
+  });
+
+  it("resolves a morning caution when a later signal appears in the same phase", () => {
+    const events = [createApplianceEvent("tv", 0, "09:20", 0)];
+
+    const messageAnomaly = selectGuardianMessageAnomaly(events, at("09:25"));
+
+    expect(messageAnomaly.severity).not.toBe("caution");
+    expect(messageAnomaly.currentText).not.toBe(
+      "아침 활동 시작이 아직 확인되지 않았습니다"
+    );
+  });
+
+  it("does not resolve a morning caution from a later noon signal", () => {
+    const events = [createApplianceEvent("riceCooker", 0, "12:22", 0)];
+
+    const currentAnomaly = detectAnomaly(events, at("12:35"));
+    const messageAnomaly = selectGuardianMessageAnomaly(events, at("12:35"));
+
+    expect(currentAnomaly).toMatchObject({
+      severity: "normal",
+      currentText: "점심 전후 활동이 안정적으로 요약됨"
+    });
+    expect(messageAnomaly).toMatchObject({
+      severity: "caution",
+      currentText: "오전 휴식이 아직 확인되지 않았습니다"
+    });
+  });
+
+  it("selects the most recently triggered unresolved caution across groups", () => {
+    const messageContext = selectGuardianMessageContext([], at("20:50"));
+
+    expect(messageContext.anomaly).toMatchObject({
+      severity: "caution",
+      currentText: "저녁 루틴이 아직 확인되지 않았습니다",
+      deltaMinutes: 5
+    });
+    expect(messageContext.aiGenerationKey).toBe("evening");
+    expect(messageContext.previousUnresolvedCautions).toHaveLength(2);
+    expect(messageContext.previousUnresolvedCautions.map((caution) => caution.groupId))
+      .toEqual(["noon", "late-morning-rest"]);
+  });
+
+  it("does not keep a watch state after the flow moves to another group", () => {
+    const events = [createApplianceEvent("light", 0, "09:05", 0)];
+
+    const messageAnomaly = selectGuardianMessageAnomaly(events, at("11:05"));
+
+    expect(messageAnomaly).toMatchObject({
+      severity: "normal",
+      currentText: "오전 휴식이 기준선 범위 안에 있습니다"
+    });
+  });
+
+  it("does not expose an AI generation key for watch or waiting states", () => {
+    expect(selectGuardianMessageContext([], at("08:45"))).toMatchObject({
+      aiGenerationKey: null,
+      anomaly: {
+        severity: "watch",
+        currentText: "아침 활동 시작이 평소보다 늦어질 수 있습니다"
+      }
+    });
+    expect(selectGuardianMessageContext([], at("07:30"))).toMatchObject({
+      aiGenerationKey: null,
+      anomaly: {
+        severity: "normal",
+        currentText: "아침 활동 시작 예정"
+      }
+    });
+  });
+
+  it("resolves same-phase cautions while keeping later-phase signals scoped to their own phase", () => {
+    const morningEvents = [createApplianceEvent("fan", 0, "11:50", 0)];
+    const noonEvents = [createApplianceEvent("riceCooker", 0, "12:22", 0)];
+
+    expect(selectGuardianMessageContext(morningEvents, at("11:55"))).toMatchObject({
+      aiGenerationKey: null,
+      anomaly: {
+        severity: "watch",
+        currentText: "오전 휴식 늦게 확인됨"
+      }
+    });
+    expect(selectGuardianMessageContext(noonEvents, at("12:35"))).toMatchObject({
+      aiGenerationKey: "late-morning-rest",
+      anomaly: {
+        severity: "caution",
+        currentText: "오전 휴식이 아직 확인되지 않았습니다"
+      }
+    });
+  });
+
+  it("uses the selected message anomaly for the guardian report and AI input boundary", () => {
+    const events = [createApplianceEvent("riceCooker", 0, "12:22", 0)];
+    const adlState = inferAdlState(events, at("12:35"));
+    const selectedAnomaly = selectGuardianMessageAnomaly(events, at("12:35"));
+    const report = generateGuardianReport(
+      adlState,
+      selectedAnomaly,
+      events.at(-1),
+      "family",
+      "ko"
+    );
+    const aiInput = buildPrivacySafeAiInput({
+      adlState,
+      anomaly: selectedAnomaly,
+      report,
+      role: "family",
+      eventCount: events.length,
+      language: "ko"
+    });
+
+    expect(report).toMatchObject({
+      title: "생활 리듬 확인 필요",
+      notificationLabel: "안부 확인 권장"
+    });
+    expect(aiInput).toMatchObject({
+      severity: "caution",
+      changeLevel: "clear_change",
+      trendSummary: "오전 휴식이 아직 확인되지 않았습니다"
+    });
   });
 });

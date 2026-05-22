@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BellRing,
   BriefcaseBusiness,
   HeartHandshake,
+  ListChecks,
   LockKeyhole,
   Phone,
   ShieldCheck
@@ -21,12 +23,20 @@ import {
   toneLabels,
   type Language
 } from "@/lib/i18n";
+import {
+  ReportGenerationStatus,
+  UnresolvedCautionPage
+} from "@/components/GuardianPhone";
+import type { GuardianMessageCaution } from "@/lib/nilmLogic";
 
 type MobileGuardianDashboardProps = {
   report: GuardianReport;
   isReportLoading: boolean;
+  showReportGenerationStatus: boolean;
   adlState: ADLState;
   anomaly: AnomalyResult;
+  currentAnomaly: AnomalyResult;
+  previousUnresolvedCautions: GuardianMessageCaution[];
   hasSignal: boolean;
   language: Language;
   role: GuardianRole | null;
@@ -36,24 +46,34 @@ type MobileGuardianDashboardProps = {
 export function MobileGuardianDashboard({
   report,
   isReportLoading,
+  showReportGenerationStatus,
   adlState,
   anomaly,
+  currentAnomaly,
+  previousUnresolvedCautions,
   hasSignal,
   language,
   role,
   onRoleChange
 }: MobileGuardianDashboardProps) {
   const [showReason, setShowReason] = useState(false);
+  const [reportPage, setReportPage] = useState<"report" | "unresolved">(
+    "report"
+  );
   const t = copy[language];
-  const reportTitle = isReportLoading ? t.reportGeneratingTitle : report.title;
-  const reportMessage = isReportLoading
-    ? t.reportGeneratingMessage
-    : report.message;
-  const typedMessage = useTypedMessage(reportMessage);
+  const readingReport = useReadingReport(report, isReportLoading);
+  const typedMessage = useTypedMessage(readingReport.message);
+  const hasUnresolvedCautions = previousUnresolvedCautions.length > 0;
 
   useEffect(() => {
     setShowReason(false);
   }, [anomaly.severity, role]);
+
+  useEffect(() => {
+    if (!hasUnresolvedCautions) {
+      setReportPage("report");
+    }
+  }, [hasUnresolvedCautions]);
 
   if (!role) {
     return (
@@ -101,44 +121,110 @@ export function MobileGuardianDashboard({
       <div className="mobileGuardianReportPane">
         <div className="mobileGuardianHeader">
           <div>
-            <p className="eyebrow">{t.liveReport}</p>
-            <h2 id="mobile-report-title">{reportTitle}</h2>
+            <div className="reportHeaderLine">
+              <p className="eyebrow">{t.liveReport}</p>
+              <ReportGenerationStatus
+                isLoading={isReportLoading}
+                isVisible={showReportGenerationStatus}
+                language={language}
+              />
+            </div>
+            <h2 id="mobile-report-title">{readingReport.title}</h2>
           </div>
-          <span className={`statusPill ${report.tone}`}>
-            {toneLabels[language][report.tone]}
-          </span>
+          {anomaly.severity === currentAnomaly.severity ? (
+            <span className={`statusPill ${report.tone}`}>
+              {toneLabels[language][report.tone]}
+            </span>
+          ) : (
+            <div className="phoneStatusPillStack">
+              <span className={`statusPill ${severityToTone(anomaly.severity)}`}>
+                {t.overallStatusLabel} {statusLabels[language][anomaly.severity]}
+              </span>
+              <span className={`statusPill ${severityToTone(currentAnomaly.severity)}`}>
+                {t.nowStatusLabel} {statusLabels[language][currentAnomaly.severity]}
+              </span>
+            </div>
+          )}
         </div>
 
-        <div className="mobileReportBubble" aria-live="polite">
-          <BellRing aria-hidden="true" size={20} />
-          <div className="reportBubbleCopy">
-            <p>{typedMessage}</p>
-          </div>
-          <span className="typingCursor" aria-hidden="true" />
-        </div>
+        <AnimatePresence mode="wait" initial={false}>
+          {reportPage === "unresolved" ? (
+            <motion.div
+              key="unresolved"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              style={{ flex: "1 1 auto", minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}
+            >
+              <UnresolvedCautionPage
+                cautions={previousUnresolvedCautions}
+                language={language}
+                onBack={() => setReportPage("report")}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="report"
+              className="phoneReportPage"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+            >
+              <div className="mobileReportBubble" aria-live="polite">
+                <BellRing aria-hidden="true" size={20} />
+                <div className="reportBubbleCopy">
+                  <p>{typedMessage}</p>
+                </div>
+                <span className="typingCursor" aria-hidden="true" />
+              </div>
 
-        {!isReportLoading &&
-        (report.changeSummary || report.supportingSuggestion) ? (
-          <div className="mobileReportInsightGrid">
-            {report.changeSummary ? (
-              <article>
-                <span>{t.changeSummaryLabel}</span>
-                <p>{report.changeSummary}</p>
-              </article>
-            ) : null}
-            {report.supportingSuggestion ? (
-              <article>
-                <span>{t.supportingSuggestionLabel}</span>
-                <p>{report.supportingSuggestion}</p>
-              </article>
-            ) : null}
-          </div>
+              {hasUnresolvedCautions ? (
+                <button
+                  className="unresolvedSwitchButton"
+                  type="button"
+                  onClick={() => setReportPage("unresolved")}
+                >
+                  <ListChecks aria-hidden="true" size={16} />
+                  <span>
+                    {t.previousNeedsCheckButton.replace(
+                      "{count}",
+                      String(previousUnresolvedCautions.length)
+                    )}
+                  </span>
+                </button>
+              ) : null}
+
+              {role !== "socialWorker" &&
+              !isReportLoading &&
+              (readingReport.changeSummary ||
+                readingReport.supportingSuggestion) ? (
+                <div className="mobileReportInsightGrid">
+                  {readingReport.changeSummary ? (
+                    <article>
+                      <span>{t.changeSummaryLabel}</span>
+                      <p>{readingReport.changeSummary}</p>
+                    </article>
+                  ) : null}
+                  {readingReport.supportingSuggestion ? (
+                    <article>
+                      <span>{t.supportingSuggestionLabel}</span>
+                      <p>{readingReport.supportingSuggestion}</p>
+                    </article>
+                  ) : null}
+                </div>
+              ) : null}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {role !== "socialWorker" ? (
+          <button className="mobileCallButton" type="button">
+            <Phone aria-hidden="true" size={18} />
+            <span>{readingReport.recommendedAction}</span>
+          </button>
         ) : null}
-
-        <button className="mobileCallButton" type="button">
-          <Phone aria-hidden="true" size={18} />
-          <span>{report.recommendedAction}</span>
-        </button>
       </div>
 
       <aside className="mobileGuardianInsightPane">
@@ -193,31 +279,48 @@ export function MobileGuardianDashboard({
           <div className="mobileCaseSummary">
             <span>{t.caseSummary}</span>
             <strong>{localizeAdlLabel(adlState, language)}</strong>
-            <p>{localizeAnomalyText(anomaly.currentText, language)}</p>
           </div>
         ) : null}
 
-        {showReason ? (
-          <div className="mobileReasonSheet" role="dialog" aria-label={t.closeReason}>
-            <button type="button" onClick={() => setShowReason(false)}>
-              {t.close}
-            </button>
-            <strong>
-              {role === "socialWorker"
-                ? t.phoneReasonWorkerTitle
-                : t.phoneReasonFamilyTitle}
-            </strong>
-            <p>{localizeAnomalyText(anomaly.reasonSummary, language)}</p>
-            <p>
-              {role === "socialWorker"
-                ? t.phoneReasonWorkerCopy
-                : t.phoneReasonFamilyCopy}
-            </p>
-          </div>
-        ) : null}
+        <AnimatePresence>
+          {showReason ? (
+            <motion.div
+              className="mobileReasonSheet"
+              role="dialog"
+              aria-label={t.closeReason}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              <button type="button" onClick={() => setShowReason(false)}>
+                {t.close}
+              </button>
+              <strong>
+                {role === "socialWorker"
+                  ? t.phoneReasonWorkerTitle
+                  : t.phoneReasonFamilyTitle}
+              </strong>
+              <p>{localizeAnomalyText(anomaly.reasonSummary, language)}</p>
+              <p>
+                {role === "socialWorker"
+                  ? t.phoneReasonWorkerCopy
+                  : t.phoneReasonFamilyCopy}
+              </p>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </aside>
     </section>
   );
+}
+
+function severityToTone(
+  severity: AnomalyResult["severity"]
+): "calm" | "warm" | "alert" {
+  if (severity === "caution") return "alert";
+  if (severity === "watch") return "warm";
+  return "calm";
 }
 
 function useTypedMessage(message: string) {
@@ -239,4 +342,16 @@ function useTypedMessage(message: string) {
   }, [message]);
 
   return typedMessage;
+}
+
+function useReadingReport(report: GuardianReport, isReportLoading: boolean) {
+  const [readingReport, setReadingReport] = useState(report);
+
+  useEffect(() => {
+    if (!isReportLoading) {
+      setReadingReport(report);
+    }
+  }, [isReportLoading, report]);
+
+  return readingReport;
 }

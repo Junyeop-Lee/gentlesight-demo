@@ -25,6 +25,20 @@ Use `.claude/skills/gentlesight-deployment/SKILL.md` when deploying to Vercel, u
 - For privacy work, do not expose raw appliance data in default UI; use the explicit unlock path only.
 - For deployment work, always run `npm run build` before deploying; never commit `.env` files; record the live URL in both `README.md` and `docs/deployment.md`.
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `Junyeop-Lee/gentlesight-demo`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context repo — `CONTEXT.md` at root + `docs/adr/`. See `docs/agents/domain.md`.
+
 ## Change Log
 
 | Date | Change | Target | Reason |
