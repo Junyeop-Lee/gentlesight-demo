@@ -340,11 +340,13 @@ export const copy = {
 
 export const statusLabels: Record<Language, Record<AnomalyResult["severity"], string>> = {
   ko: {
+    pending: "예정",
     normal: "안정",
     watch: "관찰",
     caution: "확인 필요"
   },
   en: {
+    pending: "Upcoming",
     normal: "Stable",
     watch: "Watch",
     caution: "Needs check"

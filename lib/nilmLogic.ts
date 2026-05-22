@@ -313,6 +313,20 @@ function detectAnomalyForBaseline(
       };
     }
 
+    if (currentMinutes < baselineStart) {
+      return {
+        severity: "pending",
+        statusLabel: "예정",
+        baselineText: `개인 기준선 ${baseline.window}`,
+        currentText: `${baseline.label} 예정`,
+        reasonSummary: `${baseline.label} 기준선은 아직 시작되지 않았습니다.`,
+        recentSignal: "조용한 대기 상태",
+        lateConfirmed: false,
+        deltaMinutes: 0,
+        gaugeValue: 5
+      };
+    }
+
     // Score rises gradually from 5 as the baseline window progresses
     const windowZone = observeAfter - baselineStart;
     const minutesInWindow = Math.max(0, currentMinutes - baselineStart);
@@ -322,10 +336,7 @@ function detectAnomalyForBaseline(
       severity: "normal",
       statusLabel: "안정",
       baselineText: `개인 기준선 ${baseline.window}`,
-      currentText:
-        currentMinutes < baselineStart
-          ? `${baseline.label} 예정`
-          : `${baseline.label}이 기준선 범위 안에 있습니다`,
+      currentText: `${baseline.label}이 기준선 범위 안에 있습니다`,
       reasonSummary:
         "아직 평소 생활 리듬 기준선 안에 있어 별도 확인이 필요하지 않습니다.",
       recentSignal: "조용한 대기 상태",
