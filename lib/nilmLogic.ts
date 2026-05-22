@@ -35,6 +35,54 @@ export type BaselineProgress = {
   recentSignal: string;
 };
 
+type MessageBaselineGroup = {
+  id: string;
+  phase: BaselineWindow["phase"];
+  baselineIds: string[];
+};
+
+export type GuardianMessageCaution = {
+  groupId: string;
+  baseline: BaselineWindow;
+  anomaly: AnomalyResult;
+  triggeredAt: number;
+};
+
+export type GuardianMessageContext = {
+  anomaly: AnomalyResult;
+  activeCaution: GuardianMessageCaution | null;
+  previousUnresolvedCautions: GuardianMessageCaution[];
+  aiGenerationKey: string | null;
+};
+
+const messageBaselineGroups: MessageBaselineGroup[] = [
+  {
+    id: "morning-core",
+    phase: "morning",
+    baselineIds: ["morning-start", "breakfast"]
+  },
+  {
+    id: "late-morning-rest",
+    phase: "morning",
+    baselineIds: ["late-morning-rest"]
+  },
+  {
+    id: "noon",
+    phase: "noon",
+    baselineIds: ["noon"]
+  },
+  {
+    id: "evening",
+    phase: "evening",
+    baselineIds: ["evening"]
+  },
+  {
+    id: "night",
+    phase: "night",
+    baselineIds: ["night"]
+  }
+];
+
 export function createApplianceEvent(
   applianceId: ApplianceId,
   eventIndex: number,
@@ -169,6 +217,56 @@ export function detectAnomaly(
   currentMinutes: number
 ): AnomalyResult {
   const baseline = getCurrentBaselineWindow(currentMinutes, events);
+  const result = detectAnomalyForBaseline(events, currentMinutes, baseline);
+  return { ...result, gaugeValue: computeHolisticGaugeValue(events, currentMinutes) };
+}
+
+export function selectGuardianMessageAnomaly(
+  events: ApplianceEvent[],
+  currentMinutes: number
+): AnomalyResult {
+  return selectGuardianMessageContext(events, currentMinutes).anomaly;
+}
+
+export function selectGuardianMessageContext(
+  events: ApplianceEvent[],
+  currentMinutes: number
+): GuardianMessageContext {
+  const currentBaseline = getCurrentBaselineWindow(currentMinutes, events);
+  const currentAnomaly = detectAnomalyForBaseline(
+    events,
+    currentMinutes,
+    currentBaseline
+  );
+  const unresolvedCautions = getUnresolvedCautionCandidates(events, currentMinutes);
+  const activeCaution = unresolvedCautions.at(-1) ?? null;
+  const holisticGauge = computeHolisticGaugeValue(events, currentMinutes);
+
+  if (activeCaution) {
+    return {
+      anomaly: { ...activeCaution.anomaly, gaugeValue: holisticGauge },
+      activeCaution,
+      previousUnresolvedCautions: unresolvedCautions
+        .slice(0, -1)
+        .slice(-2)
+        .reverse(),
+      aiGenerationKey: activeCaution.groupId
+    };
+  }
+
+  return {
+    anomaly: { ...currentAnomaly, gaugeValue: holisticGauge },
+    activeCaution: null,
+    previousUnresolvedCautions: [],
+    aiGenerationKey: null
+  };
+}
+
+function detectAnomalyForBaseline(
+  events: ApplianceEvent[],
+  currentMinutes: number,
+  baseline: BaselineWindow
+): AnomalyResult {
   const baselineEvents = getEventsForBaseline(events, baseline);
   const firstSignal = baselineEvents[0];
   const baselineStart = parseClockToMinutes(baseline.start);
@@ -178,6 +276,9 @@ export function detectAnomaly(
 
   if (!firstSignal) {
     if (currentMinutes >= cautionAfter) {
+      // Score rises continuously from 60 as caution time accumulates
+      const minutesInCaution = currentMinutes - cautionAfter;
+      const gaugeValue = Math.min(60 + Math.round(minutesInCaution * 0.9), 95);
       return {
         severity: "caution",
         statusLabel: "확인 필요",
@@ -188,11 +289,16 @@ export function detectAnomaly(
         recentSignal: `${baseline.label} 생활 리듬 미확인`,
         lateConfirmed: false,
         deltaMinutes: currentMinutes - cautionAfter,
-        gaugeValue: 84
+        gaugeValue
       };
     }
 
     if (currentMinutes >= observeAfter) {
+      // Score rises linearly from 30 to 58 across the watch zone
+      const watchZone = cautionAfter - observeAfter;
+      const minutesInWatch = currentMinutes - observeAfter;
+      const progress = watchZone > 0 ? minutesInWatch / watchZone : 1;
+      const gaugeValue = 30 + Math.round(progress * 28);
       return {
         severity: "watch",
         statusLabel: "관찰",
@@ -203,10 +309,15 @@ export function detectAnomaly(
         recentSignal: `${baseline.label} 관찰 중`,
         lateConfirmed: false,
         deltaMinutes: currentMinutes - observeAfter,
-        gaugeValue: 54
+        gaugeValue
       };
     }
 
+    // Score rises gradually from 5 as the baseline window progresses
+    const windowZone = observeAfter - baselineStart;
+    const minutesInWindow = Math.max(0, currentMinutes - baselineStart);
+    const windowProgress = windowZone > 0 ? Math.min(minutesInWindow / windowZone, 1) : 0;
+    const gaugeValue = 5 + Math.round(windowProgress * 23);
     return {
       severity: "normal",
       statusLabel: "안정",
@@ -220,7 +331,7 @@ export function detectAnomaly(
       recentSignal: "조용한 대기 상태",
       lateConfirmed: false,
       deltaMinutes: 0,
-      gaugeValue: 16
+      gaugeValue
     };
   }
 
@@ -228,6 +339,8 @@ export function detectAnomaly(
   const deltaFromExpected = firstSignalMinutes - expectedEnd;
 
   if (firstSignalMinutes >= cautionAfter || deltaFromExpected > 40) {
+    // Late signal: score reflects delay magnitude, then stays stable
+    const gaugeValue = Math.min(35 + Math.round(deltaFromExpected / 3), 62);
     return {
       severity: "watch",
       statusLabel: "관찰",
@@ -238,12 +351,13 @@ export function detectAnomaly(
       recentSignal: `${baseline.label} 늦게 확인됨`,
       lateConfirmed: true,
       deltaMinutes: deltaFromExpected,
-      gaugeValue: Math.min(68, 46 + Math.round(deltaFromExpected / 5))
+      gaugeValue
     };
   }
 
   const latest = events[events.length - 1];
 
+  // On-time signal: low baseline score, rises gently with accumulated activity
   return {
     severity: "normal",
     statusLabel: "안정",
@@ -254,8 +368,71 @@ export function detectAnomaly(
     recentSignal: privacySafeSignalLabel(latest),
     lateConfirmed: false,
     deltaMinutes: 0,
-    gaugeValue: 20 + Math.min(events.length * 4, 18)
+    gaugeValue: 5 + Math.min(events.length * 3, 22)
   };
+}
+
+function getUnresolvedCautionCandidates(
+  events: ApplianceEvent[],
+  currentMinutes: number
+) {
+  return messageBaselineGroups
+    .map((group) => {
+      const groupBaselines = group.baselineIds
+        .map((id) =>
+          personalBaselineWindows.find((baseline) => baseline.id === id)
+        )
+        .filter((baseline): baseline is BaselineWindow => Boolean(baseline));
+      const cautionedBaselines = groupBaselines
+        .filter(
+          (baseline) => currentMinutes >= parseClockToMinutes(baseline.cautionAfter)
+        )
+        .sort(
+          (left, right) =>
+            parseClockToMinutes(left.cautionAfter) -
+            parseClockToMinutes(right.cautionAfter)
+        );
+      const firstMissingCautionBaseline = cautionedBaselines.find(
+        (baseline) => getEventsForBaseline(events, baseline).length === 0
+      );
+
+      if (!firstMissingCautionBaseline || cautionedBaselines.length === 0) {
+        return null;
+      }
+
+      const triggeredAt = parseClockToMinutes(
+        cautionedBaselines[0]!.cautionAfter
+      );
+      const resolvedBySamePhaseSignal = events.some(
+        (event) =>
+          event.phase === group.phase &&
+          parseClockToMinutes(event.time) >= triggeredAt
+      );
+
+      if (resolvedBySamePhaseSignal) {
+        return null;
+      }
+
+      const anomaly = detectAnomalyForBaseline(
+        events,
+        currentMinutes,
+        firstMissingCautionBaseline
+      );
+
+      return {
+        groupId: group.id,
+        baseline: firstMissingCautionBaseline,
+        anomaly,
+        triggeredAt
+      };
+    })
+    .filter(
+      (
+        candidate
+      ): candidate is GuardianMessageCaution =>
+        Boolean(candidate)
+    )
+    .sort((left, right) => left.triggeredAt - right.triggeredAt);
 }
 
 export function getBaselineProgress(
@@ -562,6 +739,74 @@ function getEventsForBaseline(
 
     return event.phase === baseline.phase && matchesWindow && matchesSignal;
   });
+}
+
+// Produces a single gauge score that reflects the full day's routine so far,
+// preventing a resolved or on-time current baseline from masking earlier missed windows.
+function computeHolisticGaugeValue(
+  events: ApplianceEvent[],
+  currentMinutes: number
+): number {
+  const activeBaselines = personalBaselineWindows.filter(
+    (baseline) => parseClockToMinutes(baseline.observeAfter) <= currentMinutes
+  );
+
+  if (activeBaselines.length === 0) {
+    const baseline = getCurrentBaselineWindow(currentMinutes, events);
+    const baselineStart = parseClockToMinutes(baseline.start);
+    const observeAfter = parseClockToMinutes(baseline.observeAfter);
+    const windowZone = observeAfter - baselineStart;
+    const minutesInWindow = Math.max(0, currentMinutes - baselineStart);
+    const progress = windowZone > 0 ? Math.min(minutesInWindow / windowZone, 1) : 0;
+    return 5 + Math.round(progress * 23);
+  }
+
+  let maxScore = 0;
+  let totalWeighted = 0;
+  let totalWeight = 0;
+
+  for (const baseline of activeBaselines) {
+    const baselineEvents = getEventsForBaseline(events, baseline);
+    const cautionAfter = parseClockToMinutes(baseline.cautionAfter);
+    const observeAfter = parseClockToMinutes(baseline.observeAfter);
+    const hasSignal = baselineEvents.length > 0;
+    let score: number;
+    let w: number;
+
+    if (!hasSignal) {
+      if (currentMinutes >= cautionAfter) {
+        const minutesInCaution = currentMinutes - cautionAfter;
+        score = Math.min(60 + Math.round(minutesInCaution * 0.9), 95);
+        w = 3;
+      } else {
+        const watchZone = cautionAfter - observeAfter;
+        const minutesInWatch = currentMinutes - observeAfter;
+        const progress = watchZone > 0 ? minutesInWatch / watchZone : 1;
+        score = 30 + Math.round(progress * 28);
+        w = 1;
+      }
+    } else {
+      const firstSignal = baselineEvents[0]!;
+      const firstSignalMinutes = parseClockToMinutes(firstSignal.time);
+      const expectedEnd = parseClockToMinutes(baseline.window.split("-")[1]!);
+      const delta = firstSignalMinutes - expectedEnd;
+
+      if (firstSignalMinutes >= cautionAfter || delta > 40) {
+        score = Math.min(35 + Math.round(delta / 3), 62);
+        w = 2;
+      } else {
+        score = 5 + Math.min(baselineEvents.length * 3, 22);
+        w = 1;
+      }
+    }
+
+    if (score > maxScore) maxScore = score;
+    totalWeighted += score * w;
+    totalWeight += w;
+  }
+
+  const weightedAvg = totalWeight > 0 ? totalWeighted / totalWeight : maxScore;
+  return Math.round(0.6 * weightedAvg + 0.4 * maxScore);
 }
 
 export function privacySafeSignalLabel(event?: ApplianceEvent) {

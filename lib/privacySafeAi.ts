@@ -112,11 +112,17 @@ export function buildReportPrompt(input: PrivacySafeAiInput) {
   const outputLanguage =
     input.language === "ko" ? "Korean" : "English";
 
+  const roleInstruction =
+    input.role === "socialWorker"
+      ? "Audience: social worker managing a case. Use a professional, clinical, observation-based tone. Focus on behavioral pattern deviations, case-management implications, and objective risk indicators. Avoid emotional or familial language."
+      : "Audience: family caregiver. Use a warm, personal tone. Focus on the person's daily wellbeing and familiar patterns. Express gentle concern or reassurance as appropriate.";
+
   return [
-    `Generate a warm ${outputLanguage} guardian report from privacy-preserving routine data.`,
+    `Generate a ${outputLanguage} guardian report from privacy-preserving routine data.`,
     "Return structured fields only: message, supportingSuggestion, and changeSummary.",
     "Do not create title, CTA, severity, score, badge, or analysis. The application owns those decisions.",
     "Keep each field short enough for a compact phone report card.",
+    roleInstruction,
     input.privacyPolicyMarker,
     `Routine state: ${input.routineState}`,
     `Confidence: ${input.confidence}`,

@@ -17,6 +17,7 @@ import {
 import {
   applianceCatalog,
   interactionSlots,
+  type AnomalyResult,
   type ApplianceEvent,
   type ApplianceId,
   type GuardianRole
@@ -25,7 +26,8 @@ import {
   createApplianceEvent,
   detectAnomaly,
   generateGuardianReport,
-  inferAdlState
+  inferAdlState,
+  selectGuardianMessageContext
 } from "@/lib/nilmLogic";
 import {
   buildPrivacySafeAiInput,
@@ -104,32 +106,55 @@ export function NilmGuardianDemo() {
     () => detectAnomaly(events, currentMinutes),
     [events, currentMinutes]
   );
+  const messageContext = useMemo(
+    () => selectGuardianMessageContext(events, currentMinutes),
+    [events, currentMinutes]
+  );
+  const messageAnomaly = messageContext.anomaly;
   const guardianReport = useMemo(
     () =>
       generateGuardianReport(
         adlState,
-        anomaly,
+        messageAnomaly,
         latestEvent,
         activeGuardianRole,
         language
       ),
-    [adlState, anomaly, latestEvent, activeGuardianRole, language]
+    [adlState, messageAnomaly, latestEvent, activeGuardianRole, language]
   );
   const reportInput = useMemo(
     () =>
       buildPrivacySafeAiInput({
         adlState,
-        anomaly,
+        anomaly: messageAnomaly,
         report: guardianReport,
         role: activeGuardianRole,
         eventCount: events.length,
         language
       }),
-    [adlState, anomaly, guardianReport, activeGuardianRole, events.length, language]
+    [
+      adlState,
+      messageAnomaly,
+      guardianReport,
+      activeGuardianRole,
+      events.length,
+      language
+    ]
   );
   const reportInputSignature = useMemo(
     () => JSON.stringify(reportInput),
     [reportInput]
+  );
+  const aiReportGenerationKey = useMemo(
+    () =>
+      messageContext.aiGenerationKey
+        ? [
+            messageContext.aiGenerationKey,
+            activeGuardianRole,
+            language
+          ].join(":")
+        : null,
+    [messageContext.aiGenerationKey, activeGuardianRole, language]
   );
   const displayedGuardianReport = useMemo(
     () =>
@@ -144,7 +169,14 @@ export function NilmGuardianDemo() {
     [guardianReport, aiReport]
   );
   const isAiReportLoading =
-    guardianRole !== null && aiReportStatus === "loading";
+    guardianRole !== null &&
+    Boolean(aiReportGenerationKey) &&
+    aiReportStatus === "loading";
+  const showReportGenerationStatus =
+    Boolean(aiReportGenerationKey) &&
+    (aiReportStatus === "loading" ||
+      aiReportStatus === "ready" ||
+      aiReportStatus === "fallback");
   const homeLighting = useMemo(
     () => getHomeLighting(currentMinutes, events),
     [currentMinutes, events]
@@ -171,13 +203,13 @@ export function NilmGuardianDemo() {
   }, [currentMinutes, isClockRunning]);
 
   useEffect(() => {
-    if (!guardianRole) {
+    if (!guardianRole || !aiReportGenerationKey) {
       setAiReport(null);
       setAiReportStatus("idle");
       return;
     }
 
-    const cachedReport = aiReportCacheRef.current.get(reportInputSignature);
+    const cachedReport = aiReportCacheRef.current.get(aiReportGenerationKey);
     if (cachedReport) {
       setAiReport(cachedReport);
       setAiReportStatus(
@@ -217,7 +249,7 @@ export function NilmGuardianDemo() {
               supportingSuggestion: response.supportingSuggestion.trim(),
               changeSummary: response.changeSummary.trim()
             };
-            aiReportCacheRef.current.set(reportInputSignature, report);
+            aiReportCacheRef.current.set(aiReportGenerationKey, report);
             setAiReport(report);
             setAiReportStatus(
               response.source === "openai" ? "ready" : "fallback"
@@ -240,7 +272,7 @@ export function NilmGuardianDemo() {
       window.clearTimeout(timeoutId);
       abortController.abort();
     };
-  }, [guardianRole, reportInputSignature]);
+  }, [guardianRole, aiReportGenerationKey]);
 
   useEffect(() => {
     if (!isMobileAppViewport && mobileMode !== "interaction") {
@@ -432,7 +464,20 @@ export function NilmGuardianDemo() {
 
           <div className="demoInputHint" aria-live="polite">
             <span>{t.livingSignalSimulation}</span>
-            <strong>{statusLabels[language][anomaly.severity]}</strong>
+            {messageAnomaly.severity === anomaly.severity ? (
+              <span className={`demoStatusPill ${severityToTone(anomaly.severity)}`}>
+                {statusLabels[language][anomaly.severity]}
+              </span>
+            ) : (
+              <>
+                <span className={`demoStatusPill ${severityToTone(messageAnomaly.severity)}`}>
+                  {t.overallStatusLabel} {statusLabels[language][messageAnomaly.severity]}
+                </span>
+                <span className={`demoStatusPill ${severityToTone(anomaly.severity)}`}>
+                  {t.nowStatusLabel} {statusLabels[language][anomaly.severity]}
+                </span>
+              </>
+            )}
           </div>
 
           {detailPanel ? (
@@ -473,9 +518,10 @@ export function NilmGuardianDemo() {
             <GlobalActionBar
               activePanel={detailPanel}
               language={language}
-              onSelectPanel={(panel) =>
-                setDetailPanel((current) => (current === panel ? null : panel))
-              }
+              onSelectPanel={(panel) => {
+                setDetailPanel((current) => (current === panel ? null : panel));
+                setIsPhoneOpen(false);
+              }}
             />
           </div>
 
@@ -523,8 +569,13 @@ export function NilmGuardianDemo() {
               <GuardianPhone
                 report={displayedGuardianReport}
                 isReportLoading={isAiReportLoading}
+                showReportGenerationStatus={showReportGenerationStatus}
                 adlState={adlState}
-                anomaly={anomaly}
+                anomaly={messageAnomaly}
+                currentAnomaly={anomaly}
+                previousUnresolvedCautions={
+                  messageContext.previousUnresolvedCautions
+                }
                 hasSignal={Boolean(latestEvent)}
                 language={language}
                 role={guardianRole}
@@ -535,20 +586,25 @@ export function NilmGuardianDemo() {
 
           <button
             className={`phoneToggleButton ${
-              anomaly.severity === "caution" ? "needsAttention" : ""
+              messageAnomaly.severity === "caution" ? "needsAttention" : ""
             }`}
             type="button"
             aria-label={t.guardianPhone}
             aria-controls="guardian-phone-panel"
             aria-expanded={isPhoneOpen}
-            onClick={() => setIsPhoneOpen(!isPhoneOpen)}
+            onClick={() => {
+              setIsPhoneOpen((open) => {
+                if (!open) setDetailPanel(null);
+                return !open;
+              });
+            }}
           >
             {isPhoneOpen ? (
               <X aria-hidden="true" size={28} />
             ) : (
               <>
                 <Smartphone aria-hidden="true" size={28} />
-                {anomaly.severity === "caution" ? (
+                {messageAnomaly.severity === "caution" ? (
                   <span className="phoneNotificationBadge">
                     {displayedGuardianReport.notificationLabel}
                   </span>
@@ -568,8 +624,13 @@ export function NilmGuardianDemo() {
                 <MobileGuardianDashboard
                   report={displayedGuardianReport}
                   isReportLoading={isAiReportLoading}
+                  showReportGenerationStatus={showReportGenerationStatus}
                   adlState={adlState}
-                  anomaly={anomaly}
+                  anomaly={messageAnomaly}
+                  currentAnomaly={anomaly}
+                  previousUnresolvedCautions={
+                    messageContext.previousUnresolvedCautions
+                  }
                   hasSignal={Boolean(latestEvent)}
                   language={language}
                   role={guardianRole}
@@ -618,6 +679,14 @@ function useMediaQuery(query: string) {
   }, [query]);
 
   return matches;
+}
+
+function severityToTone(
+  severity: AnomalyResult["severity"]
+): "calm" | "warm" | "alert" {
+  if (severity === "caution") return "alert";
+  if (severity === "watch") return "warm";
+  return "calm";
 }
 
 function getHomeLighting(currentMinutes: number, events: ApplianceEvent[]) {
