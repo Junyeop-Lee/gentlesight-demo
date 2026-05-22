@@ -14,3 +14,6 @@ yarn-error.log*
 pnpm-debug.log*
 .vercel
 .env*.local
+tsconfig.tsbuildinfo
+.playwright-mcp/
+landscape-*.png

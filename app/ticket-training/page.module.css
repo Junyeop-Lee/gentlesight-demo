@@ -1,0 +1,823 @@
+.trainingShell {
+  width: min(1180px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 28px;
+  color: #18201c;
+}
+
+.headerBand {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.kicker {
+  margin: 0 0 8px;
+  color: #2c7a68;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.headerBand h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.guardBadge {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #cdd8d1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #2c5e51;
+  font-size: 0.92rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.popupFrame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #cfd8d2;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(26, 36, 31, 0.13);
+}
+
+.stepTabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid #cfd8d2;
+  background: #e8ebe7;
+}
+
+.stepTabs span {
+  display: grid;
+  min-height: 52px;
+  place-items: center;
+  color: #606a64;
+  font-weight: 950;
+  text-align: center;
+}
+
+.stepTabs span + span {
+  border-left: 1px solid #cfd8d2;
+}
+
+.activeStep {
+  background: #c9332d;
+  color: #ffffff !important;
+}
+
+.seatStage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.stadiumPanel {
+  min-height: 640px;
+  padding: 22px;
+  background: #f9faf7;
+}
+
+.scoreHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: #1f2522;
+  color: #ffffff;
+}
+
+.scoreHeader div {
+  display: grid;
+  gap: 4px;
+}
+
+.scoreHeader strong {
+  font-size: 1.25rem;
+}
+
+.scoreHeader span {
+  color: #cfd7d2;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.demoMark {
+  display: inline-grid;
+  min-height: 36px;
+  place-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f0b74a;
+  color: #262116 !important;
+  font-weight: 950 !important;
+}
+
+.fieldMap {
+  position: relative;
+  display: grid;
+  min-height: 540px;
+  place-items: center;
+  margin-top: 20px;
+  border: 1px solid #dfe6df;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(47, 157, 132, 0.1), transparent 46%),
+    #ffffff;
+}
+
+.outfield {
+  position: absolute;
+  top: 54px;
+  width: min(560px, 78%);
+  height: 260px;
+  border-radius: 280px 280px 30px 30px;
+  background: #dce2df;
+  color: #748079;
+  display: grid;
+  place-items: start center;
+  padding-top: 38px;
+  font-weight: 950;
+}
+
+.diamond {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 196px;
+  height: 196px;
+  place-items: center;
+  transform: rotate(45deg);
+  border: 14px solid #e9eee9;
+  background: #c5cbc7;
+}
+
+.diamond span {
+  position: absolute;
+  inset: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.diamond strong {
+  transform: rotate(-45deg);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 950;
+}
+
+.sectionRing {
+  position: absolute;
+  inset: auto 40px 44px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(54px, 1fr));
+  gap: 8px;
+}
+
+.mapBlock {
+  display: grid;
+  min-height: 54px;
+  place-items: center;
+  border-radius: 6px;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 950;
+  box-shadow: inset 0 -10px 18px rgba(0, 0, 0, 0.12);
+}
+
+.controlPanel {
+  display: flex;
+  flex-direction: column;
+  min-height: 640px;
+  border-left: 1px solid #dfe6df;
+  background: #f4f6f2;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 18px 10px;
+  color: #66736d;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.sectionList {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.sectionButton {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid #d4ded7;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.sectionButton span {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  color: #25302b;
+  font-size: 0.95rem;
+  font-weight: 850;
+  text-align: left;
+}
+
+.sectionButton strong {
+  color: #cc473e;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.sectionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.sectionButton.selected {
+  border-color: #18201c;
+  box-shadow: 0 0 0 3px rgba(24, 32, 28, 0.08);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+}
+
+.emerald {
+  background: #2f9d84;
+}
+
+.blue {
+  background: #3d76d1;
+}
+
+.coral {
+  background: #df6f57;
+}
+
+.amber {
+  background: #d99b25;
+}
+
+.violet {
+  background: #8c6edb;
+}
+
+.slate {
+  background: #6a7470;
+}
+
+.seatStatus {
+  display: grid;
+  gap: 8px;
+  margin: auto 12px 12px;
+  padding: 16px;
+  border: 1px solid #d4ded7;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.seatStatus span {
+  color: #66736d;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.seatStatus strong {
+  color: #18201c;
+  font-size: 1.4rem;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 48px;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #dfe6df;
+}
+
+.actions button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 950;
+}
+
+.autoButton {
+  background: #cc3f36;
+}
+
+.confirmButton {
+  background: #236b5e;
+}
+
+.resetButton {
+  background: #3c4641;
+}
+
+.priceStage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  min-height: 640px;
+  background: #f3f1ee;
+}
+
+.pricePanel {
+  margin: 16px;
+  padding: 16px;
+  border: 1px solid #d6d3ce;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.priceTitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 10px;
+  color: #1f2824;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.priceTitle strong {
+  padding-left: 14px;
+  border-left: 1px solid #a8aaa6;
+  color: #5d6660;
+  font-size: 0.92rem;
+}
+
+.priceTable {
+  overflow: hidden;
+  border-top: 1px solid #cfd3ce;
+  border-left: 1px solid #e0e3df;
+}
+
+.priceRow {
+  display: grid;
+  grid-template-columns: 128px minmax(180px, 1fr) 110px 86px;
+  min-height: 38px;
+  border-bottom: 1px solid #e0e3df;
+}
+
+.priceRow > * {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  padding: 0 12px;
+  border-right: 1px solid #e0e3df;
+}
+
+.priceGroup {
+  justify-content: center;
+  background: #f2f3f1;
+  color: #5f6862;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.priceName {
+  color: #3e4842;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.priceRow strong {
+  justify-content: flex-end;
+  color: #49524d;
+  font-size: 0.92rem;
+}
+
+.priceRow select {
+  justify-content: center;
+  width: calc(100% - 14px);
+  height: 28px;
+  align-self: center;
+  margin: 0 7px;
+  padding: 0 6px;
+  border: 1px solid #c9d0ca;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #38433d;
+  font-weight: 800;
+}
+
+.priceRow select:disabled {
+  opacity: 0.55;
+}
+
+.couponPanel {
+  margin-top: 28px;
+  border-top: 3px solid #3c423e;
+}
+
+.couponPanel div {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.couponPanel strong {
+  color: #313b35;
+  font-size: 1rem;
+}
+
+.couponPanel span {
+  color: #7d8580;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.couponPanel button {
+  float: right;
+  min-height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 4px;
+  background: #d9615e;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.couponPanel p {
+  clear: both;
+  margin: 28px 0 0;
+  padding: 14px;
+  border-top: 1px solid #d9ddd9;
+  color: #555f59;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.summaryPanel {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #d5d7d3;
+  background: #ebe9e6;
+}
+
+.matchSummary {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-bottom: 1px solid #cfd3ce;
+}
+
+.matchSummary strong {
+  color: #1f2824;
+  font-size: 1rem;
+}
+
+.matchSummary span {
+  color: #5f6862;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.summaryTable {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  margin: 0 12px;
+  border-top: 2px solid #2e3430;
+  border-left: 1px solid #d7dbd7;
+  background: #ffffff;
+}
+
+.summaryTable span,
+.summaryTable strong {
+  min-height: 34px;
+  padding: 8px;
+  border-right: 1px solid #d7dbd7;
+  border-bottom: 1px solid #d7dbd7;
+  font-size: 0.84rem;
+}
+
+.summaryTable span {
+  display: grid;
+  place-items: center;
+  background: #ecece9;
+  color: #5d6660;
+  font-weight: 900;
+}
+
+.summaryTable strong {
+  color: #1f2824;
+  font-weight: 850;
+}
+
+.totalBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: auto 12px 8px;
+  padding: 12px 16px;
+  background: #8a8681;
+  color: #ffffff;
+}
+
+.totalBox span {
+  font-size: 0.86rem;
+  font-weight: 950;
+}
+
+.totalBox strong {
+  color: #ffcf38;
+  font-size: 1.65rem;
+  font-weight: 950;
+}
+
+.summaryActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 12px 12px;
+}
+
+.summaryActions button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 950;
+}
+
+.summaryActions button:first-child {
+  background: #474c4a;
+}
+
+.summaryActions button:last-child {
+  background: #c9332d;
+}
+
+.deliveryPanel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  border-top: 1px solid #cfd8d2;
+  background: #eff6f2;
+  color: #236b5e;
+}
+
+.deliveryPanel div {
+  display: grid;
+  gap: 4px;
+}
+
+.deliveryPanel strong {
+  color: #17211d;
+  font-size: 1.1rem;
+}
+
+.deliveryPanel span {
+  color: #5e6b65;
+  font-weight: 800;
+}
+
+.modalBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(26, 30, 28, 0.48);
+}
+
+.alertModal {
+  display: grid;
+  width: min(490px, 100%);
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+
+.alertCopy {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 66px;
+  padding: 18px 24px;
+  color: #404b45;
+}
+
+.alertCopy p {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.alertCopy svg {
+  color: #c9332d;
+  flex: 0 0 auto;
+}
+
+.alertModal button {
+  min-height: 44px;
+  border: 0;
+  border-top: 1px solid #e2e4e1;
+  background: #ffffff;
+  color: #1769d1;
+  cursor: pointer;
+  font-weight: 950;
+  text-align: right;
+  padding: 0 28px;
+}
+
+.statusBand {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.phasePanel,
+.logList {
+  margin: 0;
+  border: 1px solid #cfd8d2;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.phasePanel {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 96px;
+  padding: 16px;
+}
+
+.phasePanel span {
+  color: #66736d;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.phasePanel strong {
+  font-size: 1.25rem;
+}
+
+.logList {
+  display: grid;
+  gap: 6px;
+  min-height: 96px;
+  padding: 14px 18px 14px 34px;
+  color: #3c4842;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .trainingShell {
+    padding: 18px;
+  }
+
+  .headerBand,
+  .statusBand {
+    grid-template-columns: 1fr;
+  }
+
+  .headerBand {
+    display: grid;
+    align-items: start;
+  }
+
+  .seatStage,
+  .priceStage {
+    grid-template-columns: 1fr;
+  }
+
+  .controlPanel {
+    min-height: auto;
+    border-left: 0;
+    border-top: 1px solid #dfe6df;
+  }
+
+  .summaryPanel {
+    border-left: 0;
+    border-top: 1px solid #d5d7d3;
+  }
+
+  .priceRow {
+    grid-template-columns: 96px minmax(0, 1fr) 98px 78px;
+  }
+}
+
+@media (max-width: 640px) {
+  .stepTabs {
+    grid-template-columns: 1fr;
+  }
+
+  .stepTabs span + span {
+    border-left: 0;
+    border-top: 1px solid #cfd8d2;
+  }
+
+  .stadiumPanel {
+    min-height: 500px;
+    padding: 14px;
+  }
+
+  .fieldMap {
+    min-height: 390px;
+  }
+
+  .sectionRing {
+    inset: auto 12px 24px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .outfield {
+    top: 46px;
+    width: 86%;
+    height: 200px;
+  }
+
+  .diamond {
+    width: 142px;
+    height: 142px;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+
+  .resetButton {
+    width: 100%;
+  }
+
+  .pricePanel {
+    margin: 12px;
+    padding: 12px;
+  }
+
+  .priceRow {
+    grid-template-columns: 1fr 86px;
+    min-height: auto;
+  }
+
+  .priceGroup {
+    display: none;
+  }
+
+  .priceName,
+  .priceRow strong,
+  .priceRow select {
+    min-height: 38px;
+  }
+
+  .priceRow select {
+    grid-column: 1 / -1;
+    width: calc(100% - 14px);
+  }
+
+  .summaryTable {
+    grid-template-columns: 86px minmax(0, 1fr);
+  }
+
+  .totalBox strong {
+    font-size: 1.3rem;
+  }
+}
